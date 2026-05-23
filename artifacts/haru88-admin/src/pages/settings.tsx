@@ -38,6 +38,14 @@ const SECTIONS: Section[] = [
     ]
   },
   {
+    title: "Ngân hàng - Đăng nhập tự động (API ngân hàng)",
+    fields: [
+      { key: "bank_username", label: "Tên đăng nhập ngân hàng (username/số điện thoại)" },
+      { key: "bank_password", label: "Mật khẩu ngân hàng", type: "password" },
+      { key: "corebank_api_url", label: "CoreBank API URL (để trống = dùng mặc định localhost:2002)" },
+    ]
+  },
+  {
     title: "Ngân hàng - Thông tin hiển thị cho người nạp",
     fields: [
       { key: "bank_account_number", label: "Số tài khoản" },
