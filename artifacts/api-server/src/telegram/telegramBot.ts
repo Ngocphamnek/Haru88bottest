@@ -281,8 +281,20 @@ class TelegramBotService {
     // A user wins if they have ANY winning bet >= 10k; loses only if ALL their bets >= 10k are losses
     const winnerIds = new Set(winners.filter(w => w.amount >= 10000).map(w => w.userId));
     const loserIds  = new Set(losers.filter(l => l.amount >= 10000).map(l => l.userId));
+
+    const resolveStreakName = async (uid: string): Promise<string> => {
+      const existing = this.txStreaks.get(uid);
+      if (existing && existing.name && existing.name !== uid) return existing.name;
+      try {
+        const userData = await storage.getBotUser(uid);
+        if (userData) return userData.firstName || userData.username || uid;
+      } catch { /* non-critical */ }
+      return uid;
+    };
+
     for (const uid of winnerIds) {
       const s = this.txStreaks.get(uid) || { wins: 0, losses: 0, name: uid };
+      s.name = await resolveStreakName(uid);
       s.wins++;
       s.losses = 0;
       this.txStreaks.set(uid, s);
@@ -290,6 +302,7 @@ class TelegramBotService {
     for (const uid of loserIds) {
       if (!winnerIds.has(uid)) {
         const s = this.txStreaks.get(uid) || { wins: 0, losses: 0, name: uid };
+        s.name = await resolveStreakName(uid);
         s.losses++;
         s.wins = 0;
         this.txStreaks.set(uid, s);
@@ -2571,7 +2584,7 @@ class TelegramBotService {
 
         await new Promise(resolve => setTimeout(resolve, 4000)); // Wait for animation
 
-        const isGoal = result >= 3; // Telegram ⚽: value 3,4,5 = bóng vào lưới; 1,2 = ra ngoài
+        const isGoal = result >= 4; // Telegram ⚽: value 4,5 = bóng vào lưới; 1,2,3 = ra ngoài
 
         if (isGoal) {
           const houseEdgeF = await getSettingNumber('house_edge', 2.5);
@@ -2653,7 +2666,7 @@ class TelegramBotService {
 
         await new Promise(resolve => setTimeout(resolve, 4000)); // Wait for animation
 
-        const isBasket = result >= 3; // Telegram 🏀: value 3,4,5 = bóng vào rổ; 1,2 = trượt
+        const isBasket = result >= 4; // Telegram 🏀: value 4,5 = bóng vào rổ; 1,2,3 = trượt
 
         if (isBasket) {
           const houseEdgeBk = await getSettingNumber('house_edge', 2.5);

@@ -76,7 +76,8 @@ const SECTIONS: Section[] = [
   {
     title: "Bot2 — Cài đặt phiên Tài Xỉu",
     fields: [
-      { key: "bot2_session_duration", label: "Thời gian mỗi phiên (giây) — tối thiểu 15, tối đa 300. Mặc định: 90" },
+      { key: "bot2_session_duration", label: "Thời gian đặt cược mỗi phiên (giây) — tối thiểu 15, tối đa 300. Mặc định: 90" },
+      { key: "bot2_lock_seconds", label: "Khoá cửa cược trước khi tung xúc xắc (giây) — tối thiểu 3, tối đa 30. Mặc định: 5" },
     ]
   },
   {

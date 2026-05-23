@@ -661,17 +661,34 @@ class TelegramBot2Service {
       }
     });
 
-    // ── Gift code reveal callback (anti-copy) ────────────────────────────────
+    // ── Gift code reveal callback ─────────────────────────────────────────────
     this.bot.on('callback_query', async (query: TelegramBot.CallbackQuery) => {
       if (!query.data?.startsWith('reveal_code_')) return;
       const code = query.data.replace('reveal_code_', '');
+      const userId = query.from.id;
       try {
-        await this.bot!.answerCallbackQuery(query.id, {
-          text: `🎁 Mã code của bạn:\n\n【 ${code} 】\n\n📝 Vào bot chính gõ:\n/code ${code}\n\n⚠️ Code chỉ hiện 1 lần — ghi lại ngay!`,
-          show_alert: true,
-        });
+        // Gửi tin nhắn riêng để user có thể copy code
+        try {
+          await this.bot!.sendMessage(userId,
+            `🎁 <b>MÃ QUÀ TẶNG HARU88</b>\n\n` +
+            `💰 Code của bạn:\n<code>/code ${code}</code>\n\n` +
+            `📱 Nhấn vào dòng trên để sao chép, sau đó gửi vào chat riêng với bot chính để nhận thưởng!\n\n` +
+            `⚠️ Mỗi code chỉ dùng được <b>1 lần</b> — nhanh tay nhé!`,
+            { parse_mode: 'HTML' }
+          );
+          await this.bot!.answerCallbackQuery(query.id, {
+            text: `✅ Đã gửi code vào tin nhắn riêng của bạn!`,
+            show_alert: false,
+          });
+        } catch {
+          // User chưa start bot — fallback hiển thị alert
+          await this.bot!.answerCallbackQuery(query.id, {
+            text: `🎁 Code: ${code}\n\nVào bot chính gõ: /code ${code}`,
+            show_alert: true,
+          });
+        }
       } catch (err) {
-        console.error('[GiftBroadcast] answerCallbackQuery error:', err);
+        console.error('[GiftBroadcast] reveal_code error:', err);
       }
     });
 
@@ -1537,6 +1554,8 @@ class TelegramBot2Service {
     // Đọc thời gian phiên từ cài đặt DB, mặc định 90 giây
     const rawDuration = await getSettingNumber('bot2_session_duration', 90);
     const totalDuration = Math.max(15, Math.min(300, rawDuration)); // Giới hạn 15–300 giây
+    const rawLock = await getSettingNumber('bot2_lock_seconds', 5);
+    const lockSeconds = Math.max(3, Math.min(30, rawLock)); // Giới hạn 3–30 giây
 
     let timeLeft = totalDuration;
     const sessionId = this.currentSession.sessionId;
@@ -1579,18 +1598,18 @@ class TelegramBot2Service {
     this.countdownTimer = setInterval(async () => {
       timeLeft -= 1;
 
-      // Lock chat khi còn 5 giây
-      if (timeLeft === 5 && !this.isGroupLocked) {
+      // Lock chat khi còn lockSeconds giây
+      if (timeLeft === lockSeconds && !this.isGroupLocked) {
         this.isGroupLocked = true;
         await this.lockGroupChat(true);
         await this.bot!.sendMessage(this.MAIN_GROUP,
-          `🔒 <b>KHOÁ CỬA ĐẶT CƯỢC!</b>\n⏳ Còn 5 giây — chuẩn bị tung xúc xắc...`,
+          `🔒 <b>KHOÁ CỬA ĐẶT CƯỢC!</b>\n⏳ Còn ${lockSeconds} giây — chuẩn bị tung xúc xắc...`,
           { parse_mode: 'HTML' }
         );
       }
 
-      // Nhắc ở mốc 2/3 và 1/3 thời gian (chỉ nếu cách lock 5s ít nhất 5 giây)
-      if ((timeLeft === remind1 || timeLeft === remind2) && timeLeft > 10) {
+      // Nhắc ở mốc 2/3 và 1/3 thời gian (chỉ nếu cách lock đủ xa)
+      if ((timeLeft === remind1 || timeLeft === remind2) && timeLeft > lockSeconds + 5) {
         await sendUpdate();
       }
 
@@ -2356,7 +2375,9 @@ class TelegramBot2Service {
     const steps = (MAX_AMOUNT - MIN_AMOUNT) / STEP;
 
     for (let i = 0; i < COUNT; i++) {
-      const suffix = Math.random().toString(36).substring(2, 8).toUpperCase();
+      // Chỉ dùng ký tự rõ ràng, tránh nhầm 0↔O, 1↔I↔L
+      const SAFE_CHARS = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+      const suffix = Array.from({ length: 6 }, () => SAFE_CHARS[Math.floor(Math.random() * SAFE_CHARS.length)]).join('');
       const code = `HARU${suffix}`;
       const amount = MIN_AMOUNT + Math.floor(Math.random() * (steps + 1)) * STEP;
 
