@@ -208,7 +208,7 @@ class TelegramBotService {
       
       // Track betting stats for rankings
       try {
-        const now = new Date();
+        const now = this.nowVN();
         const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
         const weekNumber = this.getWeekNumber(now);
         const weekYearStr = `${now.getFullYear()}-W${String(weekNumber).padStart(2, '0')}`;
@@ -2571,7 +2571,7 @@ class TelegramBotService {
 
         // Track betting stats for leaderboard
         try {
-          const _now = new Date();
+          const _now = this.nowVN();
           const _dateStr = `${_now.getFullYear()}-${String(_now.getMonth() + 1).padStart(2, '0')}-${String(_now.getDate()).padStart(2, '0')}`;
           const _wk = this.getWeekNumber(_now);
           const _weekStr = `${_now.getFullYear()}-W${String(_wk).padStart(2, '0')}`;
@@ -2653,7 +2653,7 @@ class TelegramBotService {
 
         // Track betting stats for leaderboard
         try {
-          const _now = new Date();
+          const _now = this.nowVN();
           const _dateStr = `${_now.getFullYear()}-${String(_now.getMonth() + 1).padStart(2, '0')}-${String(_now.getDate()).padStart(2, '0')}`;
           const _wk = this.getWeekNumber(_now);
           const _weekStr = `${_now.getFullYear()}-W${String(_wk).padStart(2, '0')}`;
@@ -2961,7 +2961,7 @@ class TelegramBotService {
 
         // Track betting stats for leaderboard
         try {
-          const _now = new Date();
+          const _now = this.nowVN();
           const _dateStr = `${_now.getFullYear()}-${String(_now.getMonth() + 1).padStart(2, '0')}-${String(_now.getDate()).padStart(2, '0')}`;
           const _wk = this.getWeekNumber(_now);
           const _weekStr = `${_now.getFullYear()}-W${String(_wk).padStart(2, '0')}`;
@@ -4046,7 +4046,7 @@ class TelegramBotService {
 
       // Track betting stats for rankings
       try {
-        const now = new Date();
+        const now = this.nowVN();
         const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
         const weekNumber = this.getWeekNumber(now);
         const weekYearStr = `${now.getFullYear()}-W${String(weekNumber).padStart(2, '0')}`;
@@ -4792,7 +4792,7 @@ class TelegramBotService {
 
       // Track betting stats for rankings
       try {
-        const now = new Date();
+        const now = this.nowVN();
         const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
         const weekNumber = this.getWeekNumber(now);
         const weekYearStr = `${now.getFullYear()}-W${String(weekNumber).padStart(2, '0')}`;
@@ -6139,7 +6139,7 @@ class TelegramBotService {
     if (!this.bot) return;
 
     try {
-      const today = new Date();
+      const today = this.nowVN();
       
       const topBettors = await storage.getTopBettingUsers('day', 10);
       
@@ -6190,7 +6190,7 @@ class TelegramBotService {
     if (!this.bot) return;
 
     try {
-      const today = new Date();
+      const today = this.nowVN();
       
       const topBettors = await storage.getTopBettingUsers('week', 10);
       
@@ -6275,8 +6275,8 @@ class TelegramBotService {
     try {
       const topBettors = await storage.getTopBettingUsers('day', 10);
       
-      const today = new Date();
-      const dateStr = today.toLocaleDateString('vi-VN');
+      const today = this.nowVN();
+      const dateStr = today.toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
       
       if (topBettors.length === 0) {
         const keyboard = {
@@ -6343,7 +6343,7 @@ class TelegramBotService {
     try {
       const topBettors = await storage.getTopBettingUsers('week', 10);
       
-      const today = new Date();
+      const today = this.nowVN();
       const weekStr = `Tuần ${this.getWeekNumber(today)}`;
       
       if (topBettors.length === 0) {
@@ -6421,8 +6421,7 @@ class TelegramBotService {
         return;
       }
 
-      const today = new Date();
-      const currentWeek = this.getWeekYear(today);
+      const currentWeek = this.getWeekYear();
       
       const weeklyReward = await storage.getWeeklyReward(userId, currentWeek);
       
@@ -6479,8 +6478,7 @@ class TelegramBotService {
         return;
       }
 
-      const today = new Date();
-      const currentWeek = this.getWeekYear(today);
+      const currentWeek = this.getWeekYear();
       
       const weeklyReward = await storage.getWeeklyReward(userId, currentWeek);
       
@@ -6535,8 +6533,7 @@ class TelegramBotService {
         return;
       }
 
-      const today = new Date();
-      const todayString = this.getDateString(today);
+      const todayString = this.getDateString();
       
       const dailyReward = await storage.getDailyReward(userId, todayString);
       
@@ -6779,7 +6776,7 @@ class TelegramBotService {
     const attDataStr = await storage.getSetting(attKey);
     const attData: { dates: string[] } = attDataStr ? JSON.parse(attDataStr) : { dates: [] };
 
-    const now = new Date();
+    const now = this.nowVN();
     const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
     const checkedToday = attData.dates.includes(today);
 
