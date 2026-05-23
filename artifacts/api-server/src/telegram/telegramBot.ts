@@ -3316,14 +3316,17 @@ class TelegramBotService {
         `⏰ Yêu cầu này sẽ <b>hết hạn sau 5 phút</b>.\n\n` +
         `🤖 Hệ thống xác nhận tự động sau khi nhận tiền.`;
 
-      // Send QR image + payment info caption together in one message
+      // Send QR image directly from VietQR URL (no Jimp processing — faster)
       try {
-        const { generateBankQR } = await import('../lib/qrGenerator');
         const bankCode = bank.replace(/\s/g, '');
-        const qrBuf = await generateBankQR(bankCode, accountNumber, amount, code, accountHolder);
-        await this.bot.sendPhoto(chatId, qrBuf, { caption: msg, parse_mode: 'HTML' });
+        const qrUrl =
+          `https://img.vietqr.io/image/${bankCode}-${accountNumber}-qr_only.png` +
+          `?amount=${amount}` +
+          `&addInfo=${encodeURIComponent(code)}` +
+          `&accountName=${encodeURIComponent(accountHolder)}`;
+        await this.bot.sendPhoto(chatId, qrUrl, { caption: msg, parse_mode: 'HTML' });
       } catch (qrErr) {
-        logger.warn({ qrErr }, "⚠️ Custom QR failed, sending text only");
+        logger.warn({ qrErr }, "⚠️ QR send failed, sending text only");
         await this.bot.sendMessage(chatId, msg, { parse_mode: 'HTML' });
       }
 
