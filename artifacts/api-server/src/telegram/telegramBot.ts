@@ -2595,7 +2595,7 @@ class TelegramBotService {
           
           await this.bot.sendMessage(chatId,
             `⚽️ <b>BÓNG ĐÁ - CHIẾN THẮNG!</b>\n\n` +
-            `🎯 Kết quả: ⚽ VÀO LƯỚI!\n` +
+            `🎯 Kết quả: ⚽ VÀO LƯỚI! <code>[dice=${result}]</code>\n` +
             `💰 Cược: ${amount.toLocaleString('vi-VN')}đ\n` +
             `🎉 Thắng: ${winAmount.toLocaleString('vi-VN')}đ (x${footballMult})\n` +
             `💎 Số dư: ${parseFloat(finalBalance).toLocaleString('vi-VN')}đ`,
@@ -2604,7 +2604,7 @@ class TelegramBotService {
         } else {
           await this.bot.sendMessage(chatId,
             `⚽️ <b>BÓNG ĐÁ - THUA!</b>\n\n` +
-            `🎯 Kết quả: ❌ RA NGOÀI!\n` +
+            `🎯 Kết quả: ❌ RA NGOÀI! <code>[dice=${result}]</code>\n` +
             `💰 Cược: ${amount.toLocaleString('vi-VN')}đ\n` +
             `😢 Thua: ${amount.toLocaleString('vi-VN')}đ\n` +
             `💎 Số dư: ${parseFloat(newBalance).toLocaleString('vi-VN')}đ`,
@@ -2677,7 +2677,7 @@ class TelegramBotService {
           
           await this.bot.sendMessage(chatId,
             `🏀 <b>BÓNG RỔ - CHIẾN THẮNG!</b>\n\n` +
-            `🎯 Kết quả: 🏀 VÀO RỔ!\n` +
+            `🎯 Kết quả: 🏀 VÀO RỔ! <code>[dice=${result}]</code>\n` +
             `💰 Cược: ${amount.toLocaleString('vi-VN')}đ\n` +
             `🎉 Thắng: ${winAmount.toLocaleString('vi-VN')}đ (x${basketMult})\n` +
             `💎 Số dư: ${parseFloat(finalBalance).toLocaleString('vi-VN')}đ`,
@@ -2686,7 +2686,7 @@ class TelegramBotService {
         } else {
           await this.bot.sendMessage(chatId,
             `🏀 <b>BÓNG RỔ - THUA!</b>\n\n` +
-            `🎯 Kết quả: ❌ TRƯỢT RỔ!\n` +
+            `🎯 Kết quả: ❌ TRƯỢT RỔ! <code>[dice=${result}]</code>\n` +
             `💰 Cược: ${amount.toLocaleString('vi-VN')}đ\n` +
             `😢 Thua: ${amount.toLocaleString('vi-VN')}đ\n` +
             `💎 Số dư: ${parseFloat(newBalance).toLocaleString('vi-VN')}đ`,
