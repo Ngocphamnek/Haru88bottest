@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Bầu Cua - Haru88</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a0a1a;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;overflow-x:hidden}
+
+.header{background:linear-gradient(135deg,#1a1a3e,#2d1b69);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #4a3aaa;position:sticky;top:0;z-index:50}
+.logo{font-size:18px;font-weight:700;color:#f0c040}
+.balance-box{text-align:right}
+.balance-label{font-size:11px;color:#888}
+.balance-val{font-size:16px;font-weight:700;color:#40e0d0}
+
+.game-area{padding:14px;max-width:480px;margin:0 auto}
+
+.status-bar{text-align:center;padding:10px 14px;margin-bottom:14px;border-radius:12px;font-weight:700;font-size:16px;transition:all .3s}
+.s-waiting{background:#0e2218;border:2px solid #1a5c35;color:#4dffaa}
+.s-countdown{background:#1e1300;border:2px solid #cc7700;color:#ffbb33}
+.s-playing{background:#12001e;border:2px solid #7700cc;color:#cc88ff}
+.s-result{background:#001222;border:2px solid #0077cc;color:#55aaff}
+
+/* Dice row */
+.dice-row{display:flex;justify-content:center;gap:14px;margin:16px 0}
+.dice-box{
+  width:82px;height:82px;border-radius:18px;
+  background:#12122e;border:3px solid #4a3aaa;
+  display:flex;align-items:center;justify-content:center;
+  font-size:38px;position:relative;overflow:hidden;
+  transition:border-color .3s;
+}
+.dice-box.highlight{border-color:#f0c040;box-shadow:0 0 16px #f0c04060}
+@keyframes spin-symbol{
+  0%  {transform:translateY(0)   scale(1)  ;opacity:1}
+  40% {transform:translateY(-30px) scale(.7);opacity:0}
+  60% {transform:translateY(30px) scale(.7);opacity:0}
+  100%{transform:translateY(0)   scale(1)  ;opacity:1}
+}
+.dice-box.spinning .sym-inner{animation:spin-symbol .15s ease-in-out infinite}
+
+/* Result banner */
+.result-banner{
+  text-align:center;padding:14px;border-radius:14px;
+  margin:10px 0;font-size:18px;font-weight:700;display:none
+}
+.r-win{background:linear-gradient(135deg,#081a08,#132613);border:2px solid #00e878;color:#00ff88}
+.r-lose{background:linear-gradient(135deg,#1a0808,#330e0e);border:2px solid #ff3333;color:#ff6666}
+.r-neutral{background:linear-gradient(135deg,#111,#222);border:2px solid #555;color:#aaa}
+
+/* Section title */
+.sec-title{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+
+/* Symbols grid */
+.symbols-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.sym-btn{
+  padding:12px 6px;border:2px solid #2a2a4a;border-radius:14px;
+  background:#10102a;cursor:pointer;text-align:center;
+  transition:all .18s;position:relative
+}
+.sym-btn:active{transform:scale(.96)}
+.sym-btn.can-bet:hover{border-color:#f0c040;transform:scale(1.03)}
+.sym-btn.has-bet{border-color:#40e0d0;background:#0a2a2a}
+.sym-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.sym-icon{font-size:30px;display:block;margin-bottom:3px}
+.sym-name{font-size:12px;font-weight:700;color:#ddd}
+.sym-bet-amt{font-size:11px;color:#40e0d0;margin-top:2px;min-height:14px}
+.bet-badge{
+  position:absolute;top:-6px;right:-6px;
+  background:#f0c040;color:#000;border-radius:50%;
+  width:18px;height:18px;font-size:10px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;display:none
+}
+
+/* Amount grid */
+.amount-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.amount-btn{
+  padding:10px 4px;border:1px solid #2a2a4a;border-radius:8px;
+  background:#10102a;color:#bbb;cursor:pointer;
+  font-size:12px;font-weight:600;transition:all .15s
+}
+.amount-btn:hover{border-color:#f0c040;color:#f0c040}
+.amount-btn.active{border-color:#f0c040;background:#1e1a08;color:#f0c040}
+.custom-row{display:flex;gap:8px;margin-top:8px}
+.custom-row input{
+  flex:1;background:#10102a;border:1px solid #2a2a4a;
+  border-radius:8px;padding:9px 12px;color:#fff;font-size:14px
+}
+.custom-row input:focus{outline:none;border-color:#f0c040}
+
+/* Bottom action bar */
+.action-bar{display:flex;gap:8px;margin-top:12px;margin-bottom:14px}
+.btn-history{
+  flex:0 0 auto;padding:12px 16px;border-radius:12px;
+  background:#1a1a3e;border:2px solid #4a3aaa;color:#aaa;
+  font-size:14px;font-weight:600;cursor:pointer;transition:all .15s
+}
+.btn-history:hover{border-color:#f0c040;color:#f0c040}
+.bet-hint{
+  flex:1;padding:12px;border-radius:12px;
+  background:#1e1a06;border:2px solid #4a3a00;
+  color:#f0c040;font-size:13px;font-weight:600;text-align:center
+}
+
+/* Players panel */
+.players-panel{background:#0e0e22;border-radius:12px;padding:12px;margin-top:12px}
+.players-panel h3{font-size:12px;color:#666;margin-bottom:8px}
+.player-item{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #1a1a32;font-size:12px}
+.player-item:last-child{border:none}
+
+/* History modal */
+.modal-overlay{
+  position:fixed;inset:0;background:#000a;z-index:100;
+  display:none;align-items:center;justify-content:center
+}
+.modal-overlay.open{display:flex}
+.modal-box{
+  background:#12122e;border:2px solid #4a3aaa;border-radius:18px;
+  padding:20px;width:90%;max-width:360px;max-height:80vh;
+  display:flex;flex-direction:column
+}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.modal-title{font-size:16px;font-weight:700;color:#f0c040}
+.modal-close{background:none;border:none;color:#888;font-size:22px;cursor:pointer;line-height:1}
+.history-list{overflow-y:auto;flex:1}
+.hist-item{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 0;border-bottom:1px solid #1a1a32;font-size:15px
+}
+.hist-item:last-child{border:none}
+.hist-no{font-size:11px;color:#555;min-width:28px}
+.hist-dice{display:flex;gap:6px;font-size:22px}
+.hist-empty{color:#555;text-align:center;padding:20px;font-size:14px}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+  background:#222;border:1px solid #444;padding:11px 20px;
+  border-radius:10px;font-size:14px;z-index:200;
+  opacity:0;pointer-events:none;transition:opacity .25s;white-space:nowrap
+}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo">🦀 BẦU CUA</div>
+  <div class="balance-box">
+    <div class="balance-label">Số dư</div>
+    <div class="balance-val" id="balance">--</div>
+  </div>
+</div>
+
+<div class="game-area">
+  <div id="statusBar" class="status-bar s-waiting">⏳ Chọn con & đặt tiền</div>
+
+  <!-- Dice display -->
+  <div class="dice-row">
+    <div class="dice-box" id="d0"><span class="sym-inner">🎯</span></div>
+    <div class="dice-box" id="d1"><span class="sym-inner">🦀</span></div>
+    <div class="dice-box" id="d2"><span class="sym-inner">🦐</span></div>
+  </div>
+
+  <div id="resultBanner" class="result-banner"></div>
+
+  <!-- Symbol buttons -->
+  <div class="sec-title">Chọn con — Nhấn để đặt ngay</div>
+  <div class="symbols-grid">
+    <button class="sym-btn" id="btn_bau" onclick="quickBet('bau')">
+      <span class="sym-icon">🎯</span>
+      <div class="sym-name">BẦU</div>
+      <div class="sym-bet-amt" id="amt_bau"></div>
+    </button>
+    <button class="sym-btn" id="btn_cua" onclick="quickBet('cua')">
+      <span class="sym-icon">🦀</span>
+      <div class="sym-name">CUA</div>
+      <div class="sym-bet-amt" id="amt_cua"></div>
+    </button>
+    <button class="sym-btn" id="btn_tom" onclick="quickBet('tom')">
+      <span class="sym-icon">🦐</span>
+      <div class="sym-name">TÔM</div>
+      <div class="sym-bet-amt" id="amt_tom"></div>
+    </button>
+    <button class="sym-btn" id="btn_ca" onclick="quickBet('ca')">
+      <span class="sym-icon">🐟</span>
+      <div class="sym-name">CÁ</div>
+      <div class="sym-bet-amt" id="amt_ca"></div>
+    </button>
+    <button class="sym-btn" id="btn_ga" onclick="quickBet('ga')">
+      <span class="sym-icon">🐓</span>
+      <div class="sym-name">GÀ</div>
+      <div class="sym-bet-amt" id="amt_ga"></div>
+    </button>
+    <button class="sym-btn" id="btn_nai" onclick="quickBet('nai')">
+      <span class="sym-icon">🦌</span>
+      <div class="sym-name">NAI</div>
+      <div class="sym-bet-amt" id="amt_nai"></div>
+    </button>
+  </div>
+
+  <!-- Amount selection -->
+  <div class="sec-title">Số tiền cược</div>
+  <div class="amount-grid">
+    <button class="amount-btn active" onclick="setAmt(10000,this)">10K</button>
+    <button class="amount-btn" onclick="setAmt(20000,this)">20K</button>
+    <button class="amount-btn" onclick="setAmt(50000,this)">50K</button>
+    <button class="amount-btn" onclick="setAmt(100000,this)">100K</button>
+    <button class="amount-btn" onclick="setAmt(200000,this)">200K</button>
+    <button class="amount-btn" onclick="setAmt(500000,this)">500K</button>
+    <button class="amount-btn" onclick="setAmt(1000000,this)">1TR</button>
+    <button class="amount-btn" onclick="setAllIn(this)">TẤT CẢ</button>
+  </div>
+  <div class="custom-row">
+    <input type="number" id="customAmt" placeholder="Nhập số tiền..." min="1000" step="1000">
+  </div>
+
+  <!-- Action bar -->
+  <div class="action-bar">
+    <button class="btn-history" onclick="openHistory()">📋 Lịch sử</button>
+    <div class="bet-hint" id="betHint">Nhấn vào con để đặt cược</div>
+  </div>
+
+  <!-- Round info -->
+  <div class="players-panel" id="roundInfo" style="text-align:center;color:#666;font-size:13px">
+    🎮 Game cá nhân · Mỗi phiên 30 giây
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- History modal -->
+<div class="modal-overlay" id="histModal" onclick="closeHistoryOutside(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title">📋 Lịch Sử Kết Quả</span>
+      <button class="modal-close" onclick="closeHistory()">✕</button>
+    </div>
+    <div class="history-list" id="histList">
+      <div class="hist-empty">Chưa có kết quả nào trong phiên này</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const EMOJI = {bau:'🎯',cua:'🦀',tom:'🦐',ca:'🐟',ga:'🐓',nai:'🦌'};
+const SYMS  = ['🎯','🦀','🦐','🐟','🐓','🦌'];
+const KEYS  = ['bau','cua','tom','ca','ga','nai'];
+
+let tgId = new URLSearchParams(location.search).get('tgid') || '';
+
+// ── Telegram WebApp SDK init (must be first, before any game code) ─────────
+(function(){
+  const tg = window.Telegram?.WebApp;
+  if(tg){
+    tg.ready();
+    tg.expand();
+    const u = tg.initDataUnsafe?.user;
+    if(u?.id) tgId = String(u.id);
+  }
+})();
+
+const API_BASE = window.location.origin;
+const COUNTDOWN_SECS = 30;
+const ROLL_SECS = 3;
+const RESULT_SECS = 5;
+
+let myBalance=0, selectedAmt=10000;
+let myBets={};
+let spinInterval=null;
+let history=[];
+let roundNo=0;
+let bettingEnabled=true;
+let phase='idle';
+let cdTimer=null;
+
+function fmt(n){return Number(n).toLocaleString('vi-VN')}
+let toastTimer=null;
+function showToast(msg,d=2200){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  if(toastTimer)clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),d);
+}
+
+// ── Amount selection ──────────────────────────────────────────
+function setAmt(v,btn){
+  selectedAmt=v;
+  document.getElementById('customAmt').value='';
+  document.querySelectorAll('.amount-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  updateHint();
+}
+function setAllIn(btn){
+  selectedAmt=myBalance;
+  document.getElementById('customAmt').value=myBalance;
+  document.querySelectorAll('.amount-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  updateHint();
+}
+document.getElementById('customAmt').addEventListener('input',function(){
+  const v=parseInt(this.value)||0;
+  selectedAmt=v;
+  document.querySelectorAll('.amount-btn').forEach(b=>b.classList.remove('active'));
+  updateHint();
+});
+function getSelectedAmt(){
+  const custom=parseInt(document.getElementById('customAmt').value)||0;
+  return custom>0?custom:selectedAmt;
+}
+function updateHint(){
+  const amt=getSelectedAmt();
+  const hint=document.getElementById('betHint');
+  if(amt>=1000){
+    hint.textContent=`Đặt: ${fmt(amt)}đ — nhấn con để cược`;
+    hint.style.color='#f0c040';
+  } else {
+    hint.textContent='Chọn số tiền trước';
+    hint.style.color='#888';
+  }
+}
+updateHint();
+
+// ── Quick bet ─────────────────────────────────────────────────
+function quickBet(type){
+  if(!bettingEnabled){showToast('⏳ Chờ phiên mới!');return;}
+  const amt=getSelectedAmt();
+  if(!amt||amt<1000){showToast('❌ Chọn số tiền tối thiểu 1,000đ!');return;}
+  const totalAlready=Object.values(myBets).reduce((s,v)=>s+v,0);
+  if(amt+totalAlready>myBalance){showToast('❌ Số dư không đủ!');return;}
+  myBets[type]=(myBets[type]||0)+amt;
+  renderMyBets();
+  showToast(`✅ Đặt ${fmt(amt)}đ vào ${EMOJI[type]||type}`);
+}
+
+function renderMyBets(){
+  KEYS.forEach(k=>{
+    const amtEl=document.getElementById(`amt_${k}`);
+    const btn=document.getElementById(`btn_${k}`);
+    if(myBets[k]){
+      amtEl.textContent=`${fmt(myBets[k])}đ`;
+      btn.classList.add('has-bet');
+    } else {
+      amtEl.textContent='';
+      btn.classList.remove('has-bet');
+    }
+  });
+}
+function clearMyBets(){myBets={};renderMyBets();}
+
+// ── Betting enable/disable ────────────────────────────────────
+function enableBetting(){
+  bettingEnabled=true;
+  document.querySelectorAll('.sym-btn').forEach(b=>{b.disabled=false;b.classList.add('can-bet');});
+}
+function disableBetting(){
+  bettingEnabled=false;
+  document.querySelectorAll('.sym-btn').forEach(b=>{b.disabled=true;b.classList.remove('can-bet');});
+}
+
+// ── Dice animation ────────────────────────────────────────────
+function startSpin(){
+  stopSpin();
+  ['d0','d1','d2'].forEach(id=>document.getElementById(id).classList.add('spinning'));
+  let frames=[[0,1,2],[1,2,3],[2,3,4],[3,4,5],[4,5,0],[5,0,1]];
+  let fi=0;
+  spinInterval=setInterval(()=>{
+    const combo=frames[fi%frames.length];
+    fi++;
+    ['d0','d1','d2'].forEach((id,i)=>{
+      document.getElementById(id).querySelector('.sym-inner').textContent=SYMS[combo[i]];
+    });
+  },120);
+}
+function stopSpin(){
+  if(spinInterval){clearInterval(spinInterval);spinInterval=null;}
+  ['d0','d1','d2'].forEach(id=>document.getElementById(id).classList.remove('spinning'));
+}
+function resetDice(){
+  stopSpin();
+  ['d0','d1','d2'].forEach((id,i)=>{
+    const el=document.getElementById(id);
+    el.querySelector('.sym-inner').textContent=SYMS[i];
+    el.classList.remove('highlight');
+  });
+}
+function showResultDice(dice){
+  stopSpin();
+  ['d0','d1','d2'].forEach((id,i)=>{
+    const el=document.getElementById(id);
+    el.querySelector('.sym-inner').textContent=EMOJI[dice[i]]||dice[i]||'?';
+    el.classList.add('highlight');
+    el.classList.remove('spinning');
+  });
+}
+
+// ── History modal ─────────────────────────────────────────────
+function openHistory(){
+  const list=document.getElementById('histList');
+  if(history.length===0){
+    list.innerHTML='<div class="hist-empty">Chưa có kết quả nào trong phiên này</div>';
+  } else {
+    list.innerHTML=history.map(h=>
+      `<div class="hist-item">
+        <span class="hist-no">#${h.roundNo}</span>
+        <span class="hist-dice">${h.dice.map(d=>EMOJI[d]||d).join(' ')}</span>
+      </div>`
+    ).join('');
+  }
+  document.getElementById('histModal').classList.add('open');
+}
+function closeHistory(){document.getElementById('histModal').classList.remove('open');}
+function closeHistoryOutside(e){if(e.target===document.getElementById('histModal'))closeHistory();}
+
+// ── HTTP balance ──────────────────────────────────────────────
+async function fetchBalance(){
+  try{
+    const r=await fetch(`${API_BASE}/api/game/balance?tgid=${encodeURIComponent(tgId)}&game=baucua`);
+    if(!r.ok)return;
+    const data=await r.json();
+    myBalance=Math.round(parseFloat(data.balance||'0'));
+    document.getElementById('balance').textContent=fmt(myBalance)+'đ';
+  }catch(e){}
+}
+
+async function postUpdateBalance(delta){
+  const newBal=myBalance+delta;
+  myBalance=newBal;
+  document.getElementById('balance').textContent=fmt(myBalance)+'đ';
+  try{
+    await fetch(`${API_BASE}/api/game/update-balance`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({tgid:tgId,balance:newBal,delta,game:'baucua',round:roundNo})
+    });
+  }catch(e){}
+}
+
+// ── Game loop ─────────────────────────────────────────────────
+function startCountdown(){
+  if(cdTimer){clearInterval(cdTimer);cdTimer=null;}
+  phase='betting';
+  let cd=COUNTDOWN_SECS;
+  const sb=document.getElementById('statusBar');
+  sb.className='status-bar s-countdown';
+  clearMyBets();
+  enableBetting();
+  document.getElementById('resultBanner').style.display='none';
+  sb.innerHTML=`⏰ Phiên <b>#${roundNo+1}</b> — Đặt cược: <b style="font-size:22px;color:#ff9900">${cd}s</b>`;
+  cdTimer=setInterval(()=>{
+    cd--;
+    sb.innerHTML=`⏰ Phiên <b>#${roundNo+1}</b> — Đặt cược: <b style="font-size:22px;color:#ff9900">${cd}s</b>`;
+    if(cd<=0){clearInterval(cdTimer);cdTimer=null;startRolling();}
+  },1000);
+}
+
+function startRolling(){
+  phase='rolling';
+  disableBetting();
+  document.getElementById('resultBanner').style.display='none';
+  resetDice();
+  startSpin();
+  const sb=document.getElementById('statusBar');
+  sb.className='status-bar s-playing';
+  sb.textContent=`🎲 Phiên #${roundNo+1} — Đang lắc...`;
+  setTimeout(()=>{
+    const dice=[
+      KEYS[Math.floor(Math.random()*KEYS.length)],
+      KEYS[Math.floor(Math.random()*KEYS.length)],
+      KEYS[Math.floor(Math.random()*KEYS.length)]
+    ];
+    settleResult(dice);
+  },ROLL_SECS*1000);
+}
+
+async function settleResult(dice){
+  phase='result';
+  roundNo++;
+  showResultDice(dice);
+  history.unshift({roundNo,dice:[...dice]});
+  if(history.length>30)history.pop();
+
+  const sb=document.getElementById('statusBar');
+  sb.className='status-bar s-result';
+  sb.innerHTML=`🏆 Phiên <b>#${roundNo}</b> — ${dice.map(d=>EMOJI[d]||d).join(' ')}`;
+
+  const hasBets=Object.keys(myBets).length>0;
+  if(hasBets){
+    let totalDelta=0;
+    for(const[betType,amount]of Object.entries(myBets)){
+      const count=dice.filter(d=>d===betType).length;
+      if(count>0) totalDelta+=amount*count;
+      else totalDelta-=amount;
+    }
+    const banner=document.getElementById('resultBanner');
+    if(totalDelta>0){
+      banner.className='result-banner r-win';
+      banner.textContent=`🎉 THẮNG ${fmt(totalDelta)}đ!`;
+    }else if(totalDelta<0){
+      banner.className='result-banner r-lose';
+      banner.textContent=`😢 Thua ${fmt(Math.abs(totalDelta))}đ`;
+    }else{
+      banner.className='result-banner r-neutral';
+      banner.textContent='Hoà — không thắng không thua';
+    }
+    banner.style.display='block';
+    await postUpdateBalance(totalDelta);
+  }
+
+  setTimeout(()=>startCountdown(),RESULT_SECS*1000);
+}
+
+// ── Entry point ───────────────────────────────────────────────
+if(!tgId){
+  document.body.innerHTML=`
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0a0a1a">
+    <div style="background:#12122e;border:2px solid #4a3aaa;border-radius:18px;padding:30px 24px;max-width:340px;width:90%;text-align:center">
+      <div style="font-size:48px;margin-bottom:12px">🎯🦀🦐</div>
+      <h2 style="color:#f0c040;font-size:20px;margin-bottom:8px">Bầu Cua Haru88</h2>
+      <p style="color:#888;font-size:14px;margin-bottom:8px">Vui lòng mở game từ bot Telegram</p>
+      <p style="color:#555;font-size:12px">💡 Nhấn nút chơi game trong @Haru88gamebot để vào</p>
+    </div>
+  </div>`;
+}else{
+  fetchBalance().then(()=>startCountdown());
+}
+</script>
+</body>
+</html>
