@@ -2584,7 +2584,7 @@ class TelegramBotService {
 
         await new Promise(resolve => setTimeout(resolve, 4000)); // Wait for animation
 
-        const isGoal = result >= 4; // Telegram ⚽: value 4,5 = bóng vào lưới; 1,2,3 = ra ngoài
+        const isGoal = result >= 3; // Telegram ⚽: value 3,4,5 = bóng vào lưới; 1,2 = ra ngoài
 
         if (isGoal) {
           const houseEdgeF = await getSettingNumber('house_edge', 2.5);
@@ -2666,7 +2666,7 @@ class TelegramBotService {
 
         await new Promise(resolve => setTimeout(resolve, 4000)); // Wait for animation
 
-        const isBasket = result >= 4; // Telegram 🏀: value 4,5 = bóng vào rổ; 1,2,3 = trượt
+        const isBasket = result >= 3; // Telegram 🏀: value 3,4,5 = bóng vào rổ; 1,2 = trượt
 
         if (isBasket) {
           const houseEdgeBk = await getSettingNumber('house_edge', 2.5);
