@@ -1112,42 +1112,6 @@ export default function TaiXiuPage() {
 
   return (
     <div className="fixed inset-0 overflow-hidden select-none" style={{background:"#000"}}>
-      {/* ── Atmospheric background ── */}
-      <div className="absolute inset-0 pointer-events-none" style={{
-        zIndex:0,
-        background:"radial-gradient(ellipse 130% 130% at 50% 50%, #1c0000 0%, #000000 65%)",
-      }}/>
-      {/* Gold cross pattern */}
-      <div className="absolute inset-0 pointer-events-none" style={{
-        zIndex:0, opacity:1,
-        backgroundImage:`url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FFD700' fill-opacity='0.018'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-      }}/>
-
-      {/* ── Background girl image — bottom half ── */}
-      <div className="absolute inset-0 pointer-events-none" style={{zIndex:0}}>
-        <img
-          src="/bg-girl.png"
-          alt=""
-          style={{
-            position:"absolute",
-            bottom:0,
-            left:"50%",
-            transform:"translateX(-50%)",
-            height:"80%",
-            width:"auto",
-            objectFit:"contain",
-            objectPosition:"bottom center",
-            opacity:0.88,
-            maskImage:"linear-gradient(to bottom, transparent 0%, transparent 72%, rgba(0,0,0,0.55) 80%, rgba(0,0,0,1) 90%)",
-            WebkitMaskImage:"linear-gradient(to bottom, transparent 0%, transparent 72%, rgba(0,0,0,0.55) 80%, rgba(0,0,0,1) 90%)",
-          }}
-        />
-        {/* fade overlay so text stays readable */}
-        <div style={{
-          position:"absolute",inset:0,
-          background:"linear-gradient(to bottom, rgba(0,0,0,0.0) 35%, rgba(0,0,0,0.25) 70%, rgba(0,0,0,0.55) 100%)",
-        }}/>
-      </div>
 
 
       {/* ── DRAGGABLE LID (hand mode) — fixed on screen, independent of panel ── */}
@@ -1187,36 +1151,6 @@ export default function TaiXiuPage() {
           cursor:"grab",touchAction:"none",willChange:"left,top",userSelect:"none",
         }}
       >
-        {/* Title */}
-        <div className="flex flex-col items-center mb-2" style={{position:"relative"}}>
-          <div style={{position:"absolute",top:-10,left:"50%",transform:"translateX(-50%)",
-            color:"rgba(255,215,0,0.35)",fontSize:14,letterSpacing:2,userSelect:"none",lineHeight:1}}>⠿⠿⠿</div>
-          <div style={{position:"relative",lineHeight:1}}>
-            <div style={{position:"absolute",top:4,left:2,fontSize:52,fontWeight:900,letterSpacing:8,
-              fontFamily:"'Arial Black','Impact',sans-serif",color:"#4a1800",userSelect:"none"}}>TÀI XỈU</div>
-            <div style={{fontSize:52,fontWeight:900,letterSpacing:8,
-              fontFamily:"'Arial Black','Impact',sans-serif",
-              background:"linear-gradient(180deg,#fff8aa 0%,#FFD700 25%,#FFA500 55%,#ff7700 80%,#cc4400 100%)",
-              WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",
-              filter:"drop-shadow(0 2px 4px rgba(0,0,0,0.6))",position:"relative",zIndex:1,userSelect:"none"}}>TÀI XỈU</div>
-          </div>
-          <div style={{fontSize:14,fontWeight:800,color:"#FFD700",letterSpacing:1,marginTop:-2,
-            textShadow:"0 0 12px rgba(255,215,0,0.7)",position:"relative"}}>
-            {fmtVN(jackpot)}
-            {jackpotToast!==null&&(
-              <span style={{
-                position:"absolute",top:-22,left:"50%",transform:"translateX(-50%)",
-                background:"linear-gradient(135deg,#7a4000,#c87000)",
-                color:"#fff",fontSize:10,fontWeight:900,
-                padding:"2px 8px",borderRadius:20,whiteSpace:"nowrap",
-                border:"1px solid rgba(255,215,0,0.5)",
-                boxShadow:"0 2px 8px rgba(0,0,0,0.5)",
-                animation:"slideUp 0.3s ease-out",
-                pointerEvents:"none",
-              }}>🏆 +{fmtVN(jackpotToast)} vào Hũ</span>
-            )}
-          </div>
-        </div>
 
         {/* ── CASINO TABLE ── */}
         <div style={{position:"relative",width:PANEL_W,height:PANEL_H}}>
