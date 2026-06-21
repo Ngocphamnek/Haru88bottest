@@ -1374,7 +1374,11 @@ export default function TaiXiuPage() {
                     border:`${big?"2px":"1.5px"} solid ${active?"#FFD700":"rgba(255,215,0,0.3)"}`,
                     boxShadow:active?"0 0 14px rgba(255,215,0,0.7),inset 0 1px 0 rgba(255,255,255,0.3)":"0 2px 6px rgba(0,0,0,0.9),inset 0 1px 0 rgba(255,255,255,0.05)",
                     transition:"all 0.2s ease",
-                  }}>{icon}</button>
+                  }}>
+                    <span style={{transform:`rotate(${-rot}deg)`,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                      {icon}
+                    </span>
+                  </button>
                 </div>
               );
             };
