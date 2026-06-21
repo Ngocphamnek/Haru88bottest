@@ -395,6 +395,75 @@ function DiceTriangle({dice,isTai,sum,noAnim}:{dice:number[];isTai:boolean;sum:n
   );
 }
 
+/* ─── Side icon button with custom SVG ─── */
+function SideIconBtn({icon,label,active,onClick}:{icon:React.ReactNode;label:string;active?:boolean;onClick:()=>void}){
+  return (
+    <button onClick={onClick} title={label} style={{
+      display:"flex",flexDirection:"column",alignItems:"center",gap:2,
+      background:"none",border:"none",padding:0,cursor:"pointer",
+    }}>
+      <div style={{
+        width:36,height:36,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",
+        background:active
+          ?"linear-gradient(145deg,#ffe066,#c8860a)"
+          :"linear-gradient(145deg,#2a1800,#150d00)",
+        border:`2px solid ${active?"#FFD700":"rgba(255,215,0,0.25)"}`,
+        boxShadow:active
+          ?"0 0 16px rgba(255,215,0,0.7),inset 0 1px 0 rgba(255,255,255,0.3)"
+          :"0 2px 8px rgba(0,0,0,0.8),inset 0 1px 0 rgba(255,255,255,0.05)",
+        transition:"all 0.2s ease",
+      }}>
+        {icon}
+      </div>
+      <span style={{
+        fontSize:8,fontWeight:700,letterSpacing:0.5,
+        color:active?"#FFD700":"rgba(255,200,80,0.55)",
+        textShadow:active?"0 0 8px rgba(255,215,0,0.6)":"none",
+        whiteSpace:"nowrap",
+      }}>{label}</span>
+    </button>
+  );
+}
+
+/* ─── Custom SVG icons ─── */
+const IcoTrophy=()=>(
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+    <path d="M8 21h8M12 17v4M5 3H3a2 2 0 000 4c0 3 2 5 4 6M19 3h2a2 2 0 010 4c0 3-2 5-4 6" stroke="#FFD700" strokeWidth="2" strokeLinecap="round"/>
+    <path d="M5 3h14v8a7 7 0 01-14 0V3z" fill="rgba(255,215,0,0.18)" stroke="#FFD700" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="12" cy="8" r="2" fill="#FFD700" opacity="0.7"/>
+  </svg>
+);
+const IcoBook=()=>(
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+    <path d="M4 19.5A2.5 2.5 0 016.5 17H20" stroke="#FFD700" strokeWidth="1.8" strokeLinecap="round"/>
+    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" fill="rgba(255,215,0,0.12)" stroke="#FFD700" strokeWidth="1.8" strokeLinejoin="round"/>
+    <path d="M8 7h8M8 11h6" stroke="#FFD700" strokeWidth="1.5" strokeLinecap="round" opacity="0.7"/>
+  </svg>
+);
+const IcoClock=()=>(
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="9" fill="rgba(255,215,0,0.1)" stroke="#FFD700" strokeWidth="1.8"/>
+    <path d="M12 7v5l3 3" stroke="#FFD700" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="12" cy="12" r="1.2" fill="#FFD700"/>
+  </svg>
+);
+const IcoChart=()=>(
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+    <path d="M3 20h18" stroke="#FFD700" strokeWidth="1.8" strokeLinecap="round"/>
+    <rect x="5" y="12" width="3" height="8" rx="1" fill="rgba(255,215,0,0.35)" stroke="#FFD700" strokeWidth="1.3"/>
+    <rect x="10.5" y="7" width="3" height="13" rx="1" fill="rgba(255,215,0,0.35)" stroke="#FFD700" strokeWidth="1.3"/>
+    <rect x="16" y="4" width="3" height="16" rx="1" fill="rgba(255,215,0,0.35)" stroke="#FFD700" strokeWidth="1.3"/>
+    <path d="M6.5 12l4-5 4 2.5 4-7" stroke="#FFD700" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.7"/>
+  </svg>
+);
+const IcoHand=()=>(
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+    <path d="M9 11V5a1 1 0 012 0v6M9 11V4a1 1 0 012 0v7M11 11V5a1 1 0 012 0v6M13 11V6a1 1 0 012 0v5" stroke="#FFD700" strokeWidth="1.6" strokeLinecap="round"/>
+    <path d="M7 11v1a1 1 0 01-1 0V9a1 1 0 012 0v2z" stroke="#FFD700" strokeWidth="1.5" strokeLinecap="round"/>
+    <path d="M7 12v3c0 3 2 5 5 5s5-2 5-5v-4" stroke="#FFD700" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="rgba(255,215,0,0.1)"/>
+  </svg>
+);
+
 /* ─── Small helpers ─── */
 function CuocButton({active,disabled,onClick}:{active:boolean;disabled?:boolean;onClick:()=>void}) {
   return (
@@ -1066,10 +1135,6 @@ export default function TaiXiuPage() {
   }
 
   const PANEL_W=416; const PANEL_H=200;
-  const iconBtns=[
-    {ico:"?",key:"rules" as Popup},{ico:"🏆",key:"leaderboard" as Popup},
-    {ico:"📈",key:"soicau" as Popup},{ico:"📋",key:"history" as Popup},
-  ];
 
   /* ── Circle content per phase ── */
   const circleContent = useMemo(()=>{
@@ -1284,38 +1349,17 @@ export default function TaiXiuPage() {
             </div>
           </div>
 
-          {/* Hand mode toggle — left side */}
-          <button
-            onClick={()=>{
-              setHandMode(prev=>!prev);
-            }}
-            className="active:scale-90 transition-all"
-            title={handMode?"Chế độ tay: BẬT":"Chế độ tay: TẮT"}
-            style={{
-              position:"absolute",left:-42,top:"50%",transform:"translateY(-50%)",
-              width:34,height:34,borderRadius:"50%",cursor:"pointer",
-              background:handMode
-                ?"linear-gradient(135deg,#FFD700,#c8860a)"
-                :"linear-gradient(180deg,#2e1800,#1a0d00)",
-              border:`2px solid ${handMode?"#FFD700":"#6b3800"}`,
-              boxShadow:handMode?"0 0 14px rgba(255,215,0,0.7)":"0 2px 8px rgba(0,0,0,0.7)",
-              color:handMode?"#1a0800":"rgba(255,215,0,0.85)",
-              fontSize:17,display:"flex",alignItems:"center",justifyContent:"center",
-            }}>🖐️</button>
+          {/* Left side buttons: Top Thắng, Hướng Dẫn, Lịch Sử */}
+          <div style={{position:"absolute",left:-58,top:"50%",transform:"translateY(-50%)",display:"flex",flexDirection:"column",gap:8,alignItems:"center"}}>
+            <SideIconBtn icon={<IcoTrophy/>} label="TOP THẮNG" active={popup==="leaderboard"} onClick={()=>setPopup(popup==="leaderboard"?null:"leaderboard")}/>
+            <SideIconBtn icon={<IcoBook/>}   label="HƯỚNG DẪN" active={popup==="rules"}       onClick={()=>setPopup(popup==="rules"?null:"rules")}/>
+            <SideIconBtn icon={<IcoClock/>}  label="LỊCH SỬ"   active={popup==="history"}     onClick={()=>setPopup(popup==="history"?null:"history")}/>
+          </div>
 
-          {/* Side icon buttons */}
-          <div style={{position:"absolute",right:-38,top:"50%",transform:"translateY(-50%)",display:"flex",flexDirection:"column",gap:6}}>
-            {iconBtns.map(b=>(
-              <button key={b.key} onClick={()=>setPopup(popup===b.key?null:b.key)}
-                className="active:scale-90 transition-all"
-                style={{width:30,height:30,borderRadius:"50%",cursor:"pointer",
-                  background:popup===b.key?"linear-gradient(135deg,#FFD700,#c8860a)":"linear-gradient(180deg,#2e1800,#1a0d00)",
-                  border:`2px solid ${popup===b.key?"#FFD700":"#6b3800"}`,
-                  boxShadow:"0 2px 8px rgba(0,0,0,0.7)",
-                  color:popup===b.key?"#1a0800":"rgba(255,215,0,0.85)",
-                  fontSize:13,fontWeight:900,display:"flex",alignItems:"center",justifyContent:"center",
-                }}>{b.ico}</button>
-            ))}
+          {/* Right side buttons: Soi Cầu + Tay */}
+          <div style={{position:"absolute",right:-58,top:"50%",transform:"translateY(-50%)",display:"flex",flexDirection:"column",gap:8,alignItems:"center"}}>
+            <SideIconBtn icon={<IcoChart/>} label="SOI CẦU" active={popup==="soicau"} onClick={()=>setPopup(popup==="soicau"?null:"soicau")}/>
+            <SideIconBtn icon={<IcoHand/>}  label="CHẾ ĐỘ TAY" active={handMode}     onClick={()=>setHandMode(p=>!p)}/>
           </div>
         </div>
 
