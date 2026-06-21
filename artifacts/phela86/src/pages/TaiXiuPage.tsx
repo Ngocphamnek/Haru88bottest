@@ -880,14 +880,26 @@ export default function TaiXiuPage() {
   const [betHistory,setBetHistory]   = useState<BetRecord[]>([]);
   const [sessionId,setSessionId]     = useState(6_800_580);
   const sessionIdRef = useRef(6_800_580);
-  const [leaderboard,setLeaderboard] = useState<LBEntry[]>([
-    {name:"gamechuabipja",totalWin:653_647_661,gamesPlayed:1240,wins:720},
-    {name:"utphu0370131",totalWin:564_279_558,gamesPlayed:988,wins:610},
-    {name:"utele428245206",totalWin:562_494_080,gamesPlayed:1100,wins:655},
-    {name:"letzhihrooksok",totalWin:450_937_278,gamesPlayed:870,wins:490},
-    {name:"utienrose283455",totalWin:440_722_346,gamesPlayed:920,wins:510},
-    {name:"Bạn",totalWin:0,gamesPlayed:0,wins:0},
-  ]);
+  const [leaderboard,setLeaderboard] = useState<LBEntry[]>([]);
+  useEffect(()=>{
+    const load=()=>{
+      fetch("/api/leaderboard")
+        .then(r=>r.json())
+        .then((rows:Array<{username:string;totalWinnings:number;gamesPlayed:number;winRate:number}>)=>{
+          if(!Array.isArray(rows)||rows.length===0) return;
+          setLeaderboard(rows.slice(0,10).map(r=>({
+            name:r.username,
+            totalWin:r.totalWinnings,
+            gamesPlayed:r.gamesPlayed,
+            wins:Math.round(r.gamesPlayed*(r.winRate/100)),
+          })));
+        })
+        .catch(()=>{});
+    };
+    load();
+    const t=setInterval(load,30_000);
+    return ()=>clearInterval(t);
+  },[]);
   const [taiTotal,setTaiTotal] = useState(85_573_572);
   const [xiuTotal,setXiuTotal] = useState(79_243_665);
   const [taiCount,setTaiCount] = useState(226);
@@ -1379,11 +1391,11 @@ export default function TaiXiuPage() {
           {(()=>{
             const A=224, B=114;
             type BtnDef={angle:number;icon:React.ReactNode;id:string;active:boolean;onClick:()=>void;big?:boolean};
-            const mkBtn=({angle,icon,id,active,onClick,big}:BtnDef)=>{
+            const mkBtn=({angle,icon,id,active,onClick}:BtnDef)=>{
               const r=angle*Math.PI/180;
               const cx=208+A*Math.cos(r), cy=100+B*Math.sin(r);
               const rot=Math.atan2(B*Math.cos(r),-A*Math.sin(r))*180/Math.PI;
-              const sz=big?42:34;
+              const sz=36;
               return(
                 <div key={id} style={{position:"absolute",left:cx-sz/2,top:cy-sz/2,transform:`rotate(${rot}deg)`}}>
                   <button title={id} onClick={onClick} style={{
@@ -1393,7 +1405,7 @@ export default function TaiXiuPage() {
                     background:active
                       ?"linear-gradient(145deg,#ffe066,#c8860a)"
                       :"linear-gradient(145deg,#0a0400,#000000)",
-                    border:`${big?"2.5px":"2px"} solid ${active?"#FFD700":"rgba(255,215,0,0.5)"}`,
+                    border:`2px solid ${active?"#FFD700":"rgba(255,215,0,0.5)"}`,
                     boxShadow:active
                       ?"0 0 18px rgba(255,215,0,0.8),inset 0 1px 0 rgba(255,255,255,0.35)"
                       :"0 4px 12px rgba(0,0,0,1),0 0 0 1.5px rgba(0,0,0,0.9),inset 0 1px 0 rgba(255,255,255,0.07)",
