@@ -1150,7 +1150,8 @@ export default function TaiXiuPage() {
           position:"absolute",left:pPos.x,top:pPos.y,
           transform:`translate(-50%,-50%) scale(${szF})`,
           transformOrigin:"center center",
-          transition:"transform 0.3s cubic-bezier(.17,.67,.3,1.2)",
+          transition:"transform 0.3s cubic-bezier(.17,.67,.3,1.2), opacity 0.3s ease",
+          opacity: focused ? 1 : 0.45,
           zIndex:10,display:"flex",flexDirection:"column",alignItems:"center",
           cursor:"grab",touchAction:"none",willChange:"left,top",userSelect:"none",
         }}
