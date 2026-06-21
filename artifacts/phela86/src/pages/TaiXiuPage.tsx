@@ -550,12 +550,12 @@ function SoiCauPopup({history,onClose}:{history:DiceRecord[];onClose:()=>void}) 
   const ROWS=6, CELL=22, GAP=1;
   const MIN_COLS=20;
 
-  const {cells,maxCol,colColorMap} = useMemo(()=>{
-    const cells:{col:number;row:number;rec:DiceRecord;strandIdx:number}[]=[];
+  const {cells,maxCol} = useMemo(()=>{
+    const cells:{col:number;row:number;rec:DiceRecord;beadIdx:number}[]=[];
     const occ=new Set<string>();
     let col=0, row=0;
     let prev:string|null=null;
-    let strandIdx=0;
+    let beadIdx=0;
     const ordered=[...history].reverse();
     for(const rec of ordered){
       if(prev!==null){
@@ -565,19 +565,15 @@ function SoiCauPopup({history,onClose}:{history:DiceRecord[];onClose:()=>void}) 
         } else {
           col++;
           row=0;
-          strandIdx++;
           while(occ.has(`${col}-${row}`)) col++;
         }
       }
       while(occ.has(`${col}-${row}`)) col++;
       occ.add(`${col}-${row}`);
-      cells.push({col,row,rec,strandIdx});
+      cells.push({col,row,rec,beadIdx:beadIdx++});
       prev=rec.result;
     }
-    // map col → palette index
-    const colColorMap=new Map<number,number>();
-    for(const c of cells) colColorMap.set(c.col, c.strandIdx % STRAND_PALETTE.length);
-    return {cells, maxCol:cells.length>0?Math.max(...cells.map(c=>c.col))+1:0, colColorMap};
+    return {cells, maxCol:cells.length>0?Math.max(...cells.map(c=>c.col))+1:0};
   },[history]);
 
   const taiCount=history.filter(r=>r.result==="T").length;
@@ -624,13 +620,12 @@ function SoiCauPopup({history,onClose}:{history:DiceRecord[];onClose:()=>void}) 
         </div>
 
         {/* Legend */}
-        <div style={{display:"flex",gap:14,marginBottom:6,fontSize:9,flexWrap:"wrap",alignItems:"center"}}>
-          <span style={{color:"rgba(255,255,255,0.4)"}}>Màu dây:</span>
-          {STRAND_PALETTE.slice(0,5).map((p,i)=>(
-            <div key={i} style={{width:12,height:12,borderRadius:"50%",background:p.fill,border:`1.5px solid ${p.stroke}`}}/>
+        <div style={{display:"flex",gap:6,marginBottom:6,fontSize:9,flexWrap:"wrap",alignItems:"center"}}>
+          <span style={{color:"rgba(255,255,255,0.4)",marginRight:2}}>Mỗi hạt 1 màu:</span>
+          {STRAND_PALETTE.map((p,i)=>(
+            <div key={i} style={{width:11,height:11,borderRadius:"50%",background:p.fill,border:`1.5px solid ${p.stroke}`}}/>
           ))}
-          <span style={{color:"rgba(255,255,255,0.3)"}}>…</span>
-          <span style={{color:"rgba(255,255,255,0.35)",marginLeft:6}}>Chấm nhỏ: 🔴TÀI / 🔵XỈU</span>
+          <span style={{color:"rgba(255,255,255,0.3)",marginLeft:4}}>· chấm 🔴TÀI 🔵XỈU</span>
         </div>
 
         {/* Big Road grid */}
@@ -648,9 +643,9 @@ function SoiCauPopup({history,onClose}:{history:DiceRecord[];onClose:()=>void}) 
               {Array.from({length:displayCols+1},(_,c)=>(
                 <line key={`vc${c}`} x1={c*(CELL+GAP)} y1={0} x2={c*(CELL+GAP)} y2={svgH} stroke="rgba(139,94,0,0.4)" strokeWidth="1"/>
               ))}
-              {cells.map(({col,row,rec,strandIdx},i)=>{
+              {cells.map(({col,row,rec,beadIdx},i)=>{
                 const isTai=rec.result==="T";
-                const pal=STRAND_PALETTE[strandIdx % STRAND_PALETTE.length];
+                const pal=STRAND_PALETTE[beadIdx % STRAND_PALETTE.length];
                 const cx=col*(CELL+GAP)+GAP/2+CELL/2+0.5;
                 const cy=row*(CELL+GAP)+GAP/2+CELL/2+0.5;
                 const total=rec.dice[0]+rec.dice[1]+rec.dice[2];
@@ -680,14 +675,24 @@ function SoiCauPopup({history,onClose}:{history:DiceRecord[];onClose:()=>void}) 
               {[...history].reverse().slice(0,40).map((rec,i)=>{
                 const isTai=rec.result==="T";
                 const total=rec.dice[0]+rec.dice[1]+rec.dice[2];
+                const pal=STRAND_PALETTE[i % STRAND_PALETTE.length];
                 return (
                   <div key={i} style={{
+                    position:"relative",
                     width:22,height:22,borderRadius:"50%",flexShrink:0,
-                    background:isTai?"#8a0010":"#0a1a66",
-                    border:`1.5px solid ${isTai?"rgba(196,30,58,0.9)":"rgba(50,80,220,0.9)"}`,
+                    background:pal.fill,
+                    border:`1.5px solid ${pal.stroke}`,
                     display:"flex",alignItems:"center",justifyContent:"center",
                     fontSize:7,fontWeight:900,color:"#fff",
-                  }}>{total}</div>
+                  }}>
+                    {total}
+                    <div style={{
+                      position:"absolute",top:0,right:0,
+                      width:7,height:7,borderRadius:"50%",
+                      background:isTai?"#ff4444":"#4488ff",
+                      border:"1px solid #000",
+                    }}/>
+                  </div>
                 );
               })}
               <div style={{color:"#FFD700",fontSize:14,marginLeft:4,flexShrink:0}}>›</div>
