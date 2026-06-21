@@ -1280,7 +1280,21 @@ export default function TaiXiuPage() {
                 )}
               </div>
 
-              <div ref={circleRef}><CenterCircle size={110}>{circleContent}</CenterCircle></div>
+              <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:4}}>
+                <div ref={circleRef}><CenterCircle size={110}>{circleContent}</CenterCircle></div>
+                {/* Player counts below circle */}
+                <div style={{display:"flex",gap:14,alignItems:"center"}}>
+                  <span style={{fontSize:9,color:"rgba(255,100,100,0.85)",fontWeight:700,display:"flex",alignItems:"center",gap:2}}>
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="7" r="4" fill="#ff6666"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7" stroke="#ff6666" strokeWidth="2.5" strokeLinecap="round"/></svg>
+                    {taiCount}
+                  </span>
+                  <span style={{fontSize:9,color:"rgba(255,215,0,0.5)"}}>người chơi</span>
+                  <span style={{fontSize:9,color:"rgba(130,160,255,0.85)",fontWeight:700,display:"flex",alignItems:"center",gap:2}}>
+                    {xiuCount}
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="7" r="4" fill="#8899ff"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7" stroke="#8899ff" strokeWidth="2.5" strokeLinecap="round"/></svg>
+                  </span>
+                </div>
+              </div>
 
               {/* XỈU */}
               <div style={{
@@ -1330,13 +1344,11 @@ export default function TaiXiuPage() {
               {history.slice(0,14).map((h,i)=><Bead key={i} val={h}/>)}
             </div>
             {/* Streaks */}
-            <div style={{display:"flex",justifyContent:"space-between",width:"100%",marginTop:5,paddingInline:12}}>
-              <span style={{fontSize:10,color:"rgba(255,215,0,0.6)"}}>{taiCount} 👤</span>
+            <div style={{display:"flex",justifyContent:"center",width:"100%",marginTop:5,paddingInline:12}}>
               <div style={{display:"flex",gap:10}}>
                 <span style={{fontSize:9,color:"rgba(255,255,255,0.4)"}}>DÃY THẮNG:<span style={{color:winStreak>0?"#FFD700":"inherit"}}> {winStreak}</span></span>
                 <span style={{fontSize:9,color:"rgba(255,255,255,0.4)"}}>DÃY THUA:<span style={{color:loseStreak>0?"#ff4444":"inherit"}}> {loseStreak}</span></span>
               </div>
-              <span style={{fontSize:10,color:"rgba(255,215,0,0.6)"}}>{xiuCount} 👤</span>
             </div>
           </div>
 
