@@ -480,12 +480,35 @@ function ChipBtn({label,selected,onClick}:{label:string;selected:boolean;onClick
   );
 }
 function Bead({val}:{val:"T"|"X"}) {
-  return <div style={{
-    width:14,height:14,borderRadius:"50%",flexShrink:0,
-    background:val==="T"?"radial-gradient(circle at 35% 30%,#ff6666,#C41E3A,#7a0010)":"radial-gradient(circle at 35% 30%,#ffffff,#dddddd,#aaaaaa)",
-    border:`1px solid ${val==="T"?"#ff3333":"#ffffff"}`,
-    boxShadow:val==="T"?"0 0 4px rgba(196,30,58,0.7)":"0 0 3px rgba(255,255,255,0.4)",
-  }}/>;
+  const isTai = val==="T";
+  const innerColor = isTai
+    ? "radial-gradient(circle at 35% 30%,#ff8888,#C41E3A,#7a0010)"
+    : "radial-gradient(circle at 35% 30%,#88aaff,#3355cc,#0a1a66)";
+  const ringColor = isTai ? "rgba(196,30,58,0.7)" : "rgba(50,80,220,0.7)";
+  const glowColor = isTai ? "rgba(196,30,58,0.6)" : "rgba(50,80,220,0.6)";
+  const label = isTai ? "T" : "X";
+  return (
+    <div style={{
+      position:"relative",width:18,height:18,flexShrink:0,
+      display:"flex",alignItems:"center",justifyContent:"center",
+    }}>
+      {/* outer ring */}
+      <div style={{
+        position:"absolute",inset:0,borderRadius:"50%",
+        border:`1.5px solid ${ringColor}`,
+        boxShadow:`0 0 5px ${glowColor},inset 0 0 3px ${glowColor}`,
+      }}/>
+      {/* inner filled circle */}
+      <div style={{
+        width:12,height:12,borderRadius:"50%",
+        background:innerColor,
+        boxShadow:`0 0 4px ${glowColor}`,
+        display:"flex",alignItems:"center",justifyContent:"center",
+      }}>
+        <span style={{fontSize:6,fontWeight:900,color:"rgba(255,255,255,0.85)",lineHeight:1,userSelect:"none"}}>{label}</span>
+      </div>
+    </div>
+  );
 }
 function PopupShell({title,onClose,children,wide=false}:{title:string;onClose:()=>void;children:React.ReactNode;wide?:boolean}) {
   return (
@@ -1336,8 +1359,8 @@ export default function TaiXiuPage() {
               );
             })()}
 
-            {/* History beads */}
-            <div style={{display:"flex",gap:4,marginTop:8,flexWrap:"nowrap"}}>
+            {/* History beads — newest on left */}
+            <div style={{display:"flex",flexDirection:"row-reverse",gap:4,marginTop:8,flexWrap:"nowrap",justifyContent:"flex-end"}}>
               {history.slice(0,14).map((h,i)=><Bead key={i} val={h}/>)}
             </div>
             {/* Streaks */}
