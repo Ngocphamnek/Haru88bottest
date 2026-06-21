@@ -1360,11 +1360,28 @@ export default function TaiXiuPage() {
             );
           })}
 
-          {/* Left arc – vertical: Soi Cầu + Tay */}
+          {/* Left side – vertical: Soi Cầu + Tay */}
           <div style={{position:"absolute",left:-40,top:"50%",transform:"translateY(-50%)",display:"flex",flexDirection:"column",gap:7}}>
             <SideIconBtn icon={<IcoChart/>} label="SOI CẦU"    active={popup==="soicau"} onClick={()=>setPopup(popup==="soicau"?null:"soicau")}/>
             <SideIconBtn icon={<IcoHand/>}  label="CHẾ ĐỘ TAY" active={handMode}         onClick={()=>setHandMode(p=>!p)}/>
           </div>
+
+          {/* Right arc — curved along top-right ellipse: angles -80°, -55°, -25° */}
+          {[
+            {angle:-80,  icon:<IcoTrophy/>, popupKey:"leaderboard" as Popup, label:"TOP THẮNG"},
+            {angle:-55,  icon:<IcoBook/>,   popupKey:"rules"        as Popup, label:"HƯỚNG DẪN"},
+            {angle:-25,  icon:<IcoClock/>,  popupKey:"history"      as Popup, label:"LỊCH SỬ"},
+          ].map(({angle,icon,popupKey,label})=>{
+            const rad = angle * Math.PI / 180;
+            const cx = 208 + 226 * Math.cos(rad);
+            const cy = 100 + 117 * Math.sin(rad);
+            const rot = Math.atan2(117*Math.cos(rad), -226*Math.sin(rad)) * 180/Math.PI;
+            return (
+              <div key={popupKey} style={{position:"absolute",left:cx-13,top:cy-13,transform:`rotate(${rot}deg)`}}>
+                <SideIconBtn icon={icon} label={label} active={popup===popupKey} onClick={()=>setPopup(popup===popupKey?null:popupKey)}/>
+              </div>
+            );
+          })}
         </div>
 
         {/* Chip selector — only visible when a side is selected */}
