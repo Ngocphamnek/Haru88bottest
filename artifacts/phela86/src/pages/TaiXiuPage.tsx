@@ -1497,100 +1497,100 @@ export default function TaiXiuPage() {
       {/* ── POPUPS ── */}
       {popup==="rules"&&(
         <PopupShell title="HƯỚNG DẪN CHƠI" onClose={()=>setPopup(null)}>
-          <div style={{padding:"12px 16px",fontSize:11,lineHeight:1.7}}>
-            {/* Luật chơi */}
-            <div style={{marginBottom:12}}>
-              <p style={{color:"#FFD700",fontWeight:900,fontSize:12,marginBottom:8,letterSpacing:1}}>⚀ LUẬT CHƠI</p>
-              <p style={{color:"rgba(255,255,255,0.55)",marginBottom:6}}>Tài Xỉu sử dụng <span style={{color:"#FFD700"}}>3 viên xúc xắc</span>. Sau khi hết thời gian cược, hệ thống lắc xúc xắc để xác định kết quả.</p>
-              <div style={{display:"flex",gap:10,marginTop:8}}>
-                <div style={{flex:1,padding:"8px",borderRadius:8,background:"rgba(136,153,255,0.1)",border:"1px solid rgba(136,153,255,0.3)",textAlign:"center"}}>
-                  <div style={{fontSize:18,fontWeight:900,color:"#88aaff",marginBottom:3}}>XỈU</div>
-                  <div style={{fontSize:10,color:"rgba(255,255,255,0.5)"}}>Tổng điểm từ <span style={{color:"#88aaff",fontWeight:700}}>3 → 10</span></div>
-                </div>
-                <div style={{flex:1,padding:"8px",borderRadius:8,background:"rgba(255,136,136,0.1)",border:"1px solid rgba(255,136,136,0.3)",textAlign:"center"}}>
-                  <div style={{fontSize:18,fontWeight:900,color:"#ff8888",marginBottom:3}}>TÀI</div>
-                  <div style={{fontSize:10,color:"rgba(255,255,255,0.5)"}}>Tổng điểm từ <span style={{color:"#ff8888",fontWeight:700}}>11 → 18</span></div>
-                </div>
+          <div style={{padding:"14px 16px",fontSize:11,lineHeight:1.7,display:"flex",flexDirection:"column",gap:14}}>
+
+            {/* Bước 1 — Kết quả */}
+            <div>
+              <div style={{color:"#FFD700",fontWeight:900,fontSize:12,marginBottom:8,display:"flex",alignItems:"center",gap:6}}>
+                <span style={{background:"rgba(255,215,0,0.15)",borderRadius:6,padding:"1px 7px"}}>1</span> Kết quả là gì?
               </div>
-              <div style={{marginTop:8,padding:"6px 10px",borderRadius:6,background:"rgba(255,215,0,0.07)",fontSize:10,color:"rgba(255,255,255,0.5)"}}>
-                Ví dụ: 5 + 4 + 3 = <span style={{color:"#ff8888",fontWeight:900}}>12 → TÀI</span>
+              <div style={{color:"rgba(255,255,255,0.6)",fontSize:10,marginBottom:8}}>
+                Hệ thống lắc <strong style={{color:"#FFD700"}}>3 viên xúc xắc</strong> → cộng tổng điểm → ra kết quả.
+              </div>
+              <div style={{display:"flex",gap:8}}>
+                <div style={{flex:1,borderRadius:10,background:"rgba(136,153,255,0.12)",border:"1px solid rgba(136,153,255,0.4)",padding:"10px 8px",textAlign:"center"}}>
+                  <div style={{fontSize:22,marginBottom:2}}>🔵</div>
+                  <div style={{fontSize:17,fontWeight:900,color:"#88aaff",letterSpacing:1}}>XỈU</div>
+                  <div style={{fontSize:11,color:"rgba(255,255,255,0.5)",marginTop:3}}>Tổng <strong style={{color:"#88aaff"}}>3 – 10</strong></div>
+                  <div style={{fontSize:9,color:"rgba(255,255,255,0.3)",marginTop:3}}>Ví dụ: 1+3+4 = 8</div>
+                </div>
+                <div style={{display:"flex",alignItems:"center",color:"rgba(255,255,255,0.3)",fontSize:16,fontWeight:900}}>VS</div>
+                <div style={{flex:1,borderRadius:10,background:"rgba(255,136,136,0.12)",border:"1px solid rgba(255,136,136,0.4)",padding:"10px 8px",textAlign:"center"}}>
+                  <div style={{fontSize:22,marginBottom:2}}>🔴</div>
+                  <div style={{fontSize:17,fontWeight:900,color:"#ff8888",letterSpacing:1}}>TÀI</div>
+                  <div style={{fontSize:11,color:"rgba(255,255,255,0.5)",marginTop:3}}>Tổng <strong style={{color:"#ff8888"}}>11 – 18</strong></div>
+                  <div style={{fontSize:9,color:"rgba(255,255,255,0.3)",marginTop:3}}>Ví dụ: 4+5+6 = 15</div>
+                </div>
               </div>
             </div>
 
-            <div style={{borderTop:"1px solid rgba(139,94,0,0.3)",paddingTop:10,marginBottom:12}}>
-              <p style={{color:"#FFD700",fontWeight:900,fontSize:12,marginBottom:8,letterSpacing:1}}>🎯 CÁCH CHƠI</p>
+            {/* Bước 2 — Cách chơi */}
+            <div style={{borderTop:"1px solid rgba(139,94,0,0.25)",paddingTop:12}}>
+              <div style={{color:"#FFD700",fontWeight:900,fontSize:12,marginBottom:10,display:"flex",alignItems:"center",gap:6}}>
+                <span style={{background:"rgba(255,215,0,0.15)",borderRadius:6,padding:"1px 7px"}}>2</span> Cách đặt cược
+              </div>
               {[
-                "Chọn số tiền cược bằng các chip.",
-                "Chọn cửa TÀI hoặc XỈU rồi nhấn CƯỢC.",
-                "Xác nhận đặt cược.",
-                "Chờ kết quả và nhận thưởng nếu dự đoán đúng.",
-              ].map((step,i)=>(
-                <div key={i} style={{display:"flex",gap:8,marginBottom:5,alignItems:"flex-start"}}>
-                  <span style={{background:"rgba(255,215,0,0.2)",color:"#FFD700",fontWeight:900,fontSize:9,borderRadius:"50%",width:18,height:18,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:1}}>{i+1}</span>
-                  <span style={{color:"rgba(255,255,255,0.6)",fontSize:10}}>{step}</span>
+                {icon:"💰", text:"Chọn mệnh giá chip (1K / 10K / 100K …)"},
+                {icon:"🎯", text:"Bấm vào ô TÀI hoặc XỈU để chọn cửa"},
+                {icon:"✅", text:"Bấm nút CƯỢC để xác nhận"},
+                {icon:"⏳", text:"Chờ đồng hồ đếm về 0 — xúc xắc sẽ lắc"},
+                {icon:"🎉", text:"Đoán đúng → nhận thưởng x1.95 tiền cược"},
+              ].map(({icon,text},i)=>(
+                <div key={i} style={{display:"flex",gap:10,marginBottom:7,alignItems:"center"}}>
+                  <span style={{fontSize:14,flexShrink:0}}>{icon}</span>
+                  <span style={{color:"rgba(255,255,255,0.7)",fontSize:10}}>{text}</span>
                 </div>
               ))}
             </div>
 
-            <div style={{borderTop:"1px solid rgba(139,94,0,0.3)",paddingTop:10,marginBottom:12}}>
-              <p style={{color:"#FFD700",fontWeight:900,fontSize:12,marginBottom:6,letterSpacing:1}}>⏱ THỜI GIAN PHIÊN</p>
-              <p style={{color:"rgba(255,255,255,0.55)",fontSize:10}}>Mỗi phiên kéo dài khoảng <span style={{color:"#FFD700"}}>45 giây</span>. Khi đếm về 0, hệ thống ngừng nhận cược và tiến hành quay kết quả.</p>
-            </div>
-
-            <div style={{borderTop:"1px solid rgba(139,94,0,0.3)",paddingTop:10,marginBottom:12}}>
-              <p style={{color:"#FFD700",fontWeight:900,fontSize:12,marginBottom:8,letterSpacing:1}}>💰 TRẢ THƯỞNG</p>
-              <div style={{padding:"8px 10px",borderRadius:8,background:"rgba(0,0,0,0.3)",border:"1px solid rgba(139,94,0,0.3)"}}>
-                <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
-                  <span style={{color:"rgba(255,255,255,0.5)",fontSize:10}}>Cược</span>
-                  <span style={{color:"rgba(255,255,255,0.7)",fontSize:10,fontWeight:700}}>100.000 VNĐ</span>
+            {/* Ví dụ tiền thưởng */}
+            <div style={{borderRadius:10,background:"rgba(0,0,0,0.35)",border:"1px solid rgba(255,215,0,0.2)",padding:"10px 12px"}}>
+              <div style={{color:"#FFD700",fontSize:10,fontWeight:900,marginBottom:6,textAlign:"center"}}>💵 VÍ DỤ TIỀN THƯỞNG</div>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <div style={{textAlign:"center"}}>
+                  <div style={{fontSize:9,color:"rgba(255,255,255,0.4)"}}>Đặt cược</div>
+                  <div style={{fontSize:13,fontWeight:900,color:"#fff"}}>100.000₫</div>
                 </div>
-                <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
-                  <span style={{color:"rgba(255,255,255,0.5)",fontSize:10}}>Tỷ lệ</span>
-                  <span style={{color:"#FFD700",fontSize:10,fontWeight:900}}>x1.95</span>
+                <div style={{fontSize:18,color:"rgba(255,215,0,0.4)"}}>→</div>
+                <div style={{textAlign:"center"}}>
+                  <div style={{fontSize:9,color:"rgba(255,255,255,0.4)"}}>Đoán đúng, nhận về</div>
+                  <div style={{fontSize:13,fontWeight:900,color:"#44ee88"}}>195.000₫</div>
                 </div>
-                <div style={{borderTop:"1px solid rgba(139,94,0,0.3)",paddingTop:4,display:"flex",justifyContent:"space-between"}}>
-                  <span style={{color:"rgba(255,255,255,0.5)",fontSize:10}}>Nhận về</span>
-                  <span style={{color:"#44ee88",fontSize:10,fontWeight:900}}>195.000 VNĐ</span>
+                <div style={{fontSize:18,color:"rgba(255,215,0,0.4)"}}>|</div>
+                <div style={{textAlign:"center"}}>
+                  <div style={{fontSize:9,color:"rgba(255,255,255,0.4)"}}>Đoán sai, mất</div>
+                  <div style={{fontSize:13,fontWeight:900,color:"#ff6666"}}>100.000₫</div>
                 </div>
               </div>
             </div>
 
-            <div style={{borderTop:"1px solid rgba(139,94,0,0.3)",paddingTop:10,marginBottom:12}}>
-              <p style={{color:"#FFD700",fontWeight:900,fontSize:12,marginBottom:8,letterSpacing:1}}>🏆 HŨ THƯỞNG</p>
-              <p style={{color:"rgba(255,255,255,0.55)",fontSize:10,marginBottom:8}}>Hũ được tích lũy từ mỗi lượt cược (trích <span style={{color:"#FFD700"}}>0.5%</span>). Hũ nổ khi đủ <span style={{color:"#FFD700",fontWeight:700}}>một trong hai</span> điều kiện:</p>
-              {/* Điều kiện 1: xúc xắc */}
-              <div style={{marginBottom:8,padding:"8px 10px",borderRadius:8,background:"rgba(255,215,0,0.08)",border:"1px solid rgba(255,215,0,0.25)"}}>
-                <div style={{color:"#FFD700",fontWeight:900,fontSize:10,marginBottom:4}}>🎲 Xúc xắc ba mặt giống nhau</div>
-                <div style={{display:"flex",gap:8}}>
-                  <div style={{flex:1,textAlign:"center",padding:"5px 0",borderRadius:6,background:"rgba(255,100,100,0.15)",border:"1px solid rgba(255,100,100,0.3)"}}>
-                    <div style={{fontSize:14,letterSpacing:2}}>⚀⚀⚀</div>
-                    <div style={{fontSize:9,color:"#ff9999",fontWeight:700,marginTop:2}}>1-1-1 → NỔ HŨ</div>
-                  </div>
-                  <div style={{flex:1,textAlign:"center",padding:"5px 0",borderRadius:6,background:"rgba(100,180,255,0.15)",border:"1px solid rgba(100,180,255,0.3)"}}>
-                    <div style={{fontSize:14,letterSpacing:2}}>⚅⚅⚅</div>
-                    <div style={{fontSize:9,color:"#99ccff",fontWeight:700,marginTop:2}}>6-6-6 → NỔ HŨ</div>
-                  </div>
-                </div>
+            {/* Hũ thưởng */}
+            <div style={{borderTop:"1px solid rgba(139,94,0,0.25)",paddingTop:12}}>
+              <div style={{color:"#FFD700",fontWeight:900,fontSize:12,marginBottom:8,display:"flex",alignItems:"center",gap:6}}>
+                <span style={{background:"rgba(255,215,0,0.15)",borderRadius:6,padding:"1px 7px"}}>3</span> 🏆 Hũ Jackpot
               </div>
-              {/* Điều kiện 2: số người */}
-              <div style={{padding:"8px 10px",borderRadius:8,background:"rgba(255,215,0,0.08)",border:"1px solid rgba(255,215,0,0.25)"}}>
-                <div style={{color:"#FFD700",fontWeight:900,fontSize:10,marginBottom:6}}>👥 Số người đặt cược là số chẵn</div>
-                <div style={{display:"flex",gap:6}}>
-                  <div style={{flex:1,textAlign:"center",padding:"5px 4px",borderRadius:6,background:"rgba(255,100,100,0.12)",border:"1px solid rgba(255,100,100,0.3)"}}>
-                    <div style={{fontSize:13,fontWeight:900,color:"#ff9999"}}>123</div>
-                    <div style={{fontSize:8,color:"rgba(255,255,255,0.4)",marginTop:1}}>Số lẻ → Không nổ</div>
-                  </div>
-                  <div style={{flex:1,textAlign:"center",padding:"5px 4px",borderRadius:6,background:"rgba(80,220,120,0.12)",border:"1px solid rgba(80,220,120,0.3)"}}>
-                    <div style={{fontSize:13,fontWeight:900,color:"#88ee99"}}>122</div>
-                    <div style={{fontSize:8,color:"rgba(255,255,255,0.4)",marginTop:1}}>Số chẵn → NỔ HŨ</div>
-                  </div>
+              <div style={{color:"rgba(255,255,255,0.55)",fontSize:10,marginBottom:8}}>
+                Mỗi lượt cược trích <strong style={{color:"#FFD700"}}>0.5%</strong> vào hũ. Hũ nổ khi xảy ra:
+              </div>
+              <div style={{display:"flex",gap:8}}>
+                <div style={{flex:1,borderRadius:8,background:"rgba(255,215,0,0.08)",border:"1px solid rgba(255,215,0,0.25)",padding:"8px",textAlign:"center"}}>
+                  <div style={{fontSize:18,letterSpacing:3,marginBottom:4}}>⚀⚀⚀</div>
+                  <div style={{fontSize:9,color:"#FFD700",fontWeight:700}}>Ba mặt 1-1-1</div>
+                  <div style={{fontSize:8,color:"rgba(255,255,255,0.35)",marginTop:2}}>hoặc 6-6-6</div>
+                </div>
+                <div style={{display:"flex",alignItems:"center",color:"rgba(255,255,255,0.3)",fontSize:11,fontWeight:900}}>HOẶC</div>
+                <div style={{flex:1,borderRadius:8,background:"rgba(255,215,0,0.08)",border:"1px solid rgba(255,215,0,0.25)",padding:"8px",textAlign:"center"}}>
+                  <div style={{fontSize:18,marginBottom:4}}>👥</div>
+                  <div style={{fontSize:9,color:"#FFD700",fontWeight:700}}>Số người chẵn</div>
+                  <div style={{fontSize:8,color:"rgba(255,255,255,0.35)",marginTop:2}}>Tổng người đặt cược</div>
                 </div>
               </div>
             </div>
 
-            <div style={{borderTop:"1px solid rgba(139,94,0,0.3)",paddingTop:8}}>
-              <p style={{color:"rgba(255,215,0,0.4)",fontSize:9,lineHeight:1.6}}>⚠ Mỗi phiên là độc lập. Kết quả được xác định ngẫu nhiên. Chơi có trách nhiệm và quản lý vốn hợp lý.</p>
+            <div style={{background:"rgba(255,215,0,0.06)",borderRadius:8,padding:"8px 10px"}}>
+              <p style={{color:"rgba(255,215,0,0.5)",fontSize:9,lineHeight:1.7,margin:0}}>⚠️ Kết quả mỗi phiên hoàn toàn ngẫu nhiên và độc lập. Hãy quản lý vốn hợp lý và chơi có trách nhiệm.</p>
             </div>
+
           </div>
         </PopupShell>
       )}
