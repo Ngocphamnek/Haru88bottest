@@ -1341,32 +1341,39 @@ export default function TaiXiuPage() {
           </div>
 
           {/* ── Arc buttons around the oval sides ──
-               Oval center=(208,100), semi-axes a=208, b=100.
-               Outer ellipse a=224, b=114 for button centers.
-               LEFT 3  : upper-left(-148°), left-mid(178°), lower-left(148°)
-               RIGHT 2 : upper-right(-32°), lower-right(32°)            */}
+               LEFT: Trophy centre big (-180°), Book upper (-155°), Clock lower (-205°)
+               RIGHT: Chart upper (-20°), Hand lower (20°)
+          */}
           {(()=>{
             const A=224, B=114;
-            const arc=(angle:number,icon:React.ReactNode,key:Popup|"hand",active:boolean,onClick:()=>void)=>{
+            type BtnDef={angle:number;icon:React.ReactNode;id:string;active:boolean;onClick:()=>void;big?:boolean};
+            const mkBtn=({angle,icon,id,active,onClick,big}:BtnDef)=>{
               const r=angle*Math.PI/180;
               const cx=208+A*Math.cos(r), cy=100+B*Math.sin(r);
               const rot=Math.atan2(B*Math.cos(r),-A*Math.sin(r))*180/Math.PI;
+              const sz=big?32:24;
               return(
-                <div key={key??angle} style={{position:"absolute",left:cx-13,top:cy-13,transform:`rotate(${rot}deg)`}}>
-                  {key==="hand"
-                    ? <SideIconBtn icon={icon} label="CHẾ ĐỘ TAY" active={active} onClick={onClick}/>
-                    : <SideIconBtn icon={icon} label="" active={active} onClick={onClick}/>
-                  }
+                <div key={id} style={{position:"absolute",left:cx-sz/2,top:cy-sz/2,transform:`rotate(${rot}deg)`}}>
+                  <button title={id} onClick={onClick} style={{
+                    width:sz,height:sz,borderRadius:"50%",
+                    display:"flex",alignItems:"center",justifyContent:"center",
+                    padding:0,cursor:"pointer",
+                    background:active?"linear-gradient(145deg,#ffe066,#c8860a)":"linear-gradient(145deg,#2a1800,#150d00)",
+                    border:`${big?"2px":"1.5px"} solid ${active?"#FFD700":"rgba(255,215,0,0.3)"}`,
+                    boxShadow:active?"0 0 14px rgba(255,215,0,0.7),inset 0 1px 0 rgba(255,255,255,0.3)":"0 2px 6px rgba(0,0,0,0.9),inset 0 1px 0 rgba(255,255,255,0.05)",
+                    transition:"all 0.2s ease",
+                  }}>{icon}</button>
                 </div>
               );
             };
-            return(<>
-              {arc(-148,<IcoTrophy/>,"leaderboard",popup==="leaderboard",()=>setPopup(popup==="leaderboard"?null:"leaderboard"))}
-              {arc( 178,<IcoBook/>,"rules",popup==="rules",()=>setPopup(popup==="rules"?null:"rules"))}
-              {arc( 148,<IcoClock/>,"history",popup==="history",()=>setPopup(popup==="history"?null:"history"))}
-              {arc( -32,<IcoChart/>,"soicau",popup==="soicau",()=>setPopup(popup==="soicau"?null:"soicau"))}
-              {arc(  32,<IcoHand/>,"hand",handMode,()=>setHandMode(p=>!p))}
-            </>);
+            const defs:BtnDef[]=[
+              {angle:-180,icon:<IcoTrophy/>,id:"leaderboard",active:popup==="leaderboard",onClick:()=>setPopup(popup==="leaderboard"?null:"leaderboard"),big:true},
+              {angle:-155,icon:<IcoBook/>,  id:"rules",      active:popup==="rules",      onClick:()=>setPopup(popup==="rules"?null:"rules")},
+              {angle:-205,icon:<IcoClock/>, id:"history",    active:popup==="history",    onClick:()=>setPopup(popup==="history"?null:"history")},
+              {angle: -20,icon:<IcoChart/>, id:"soicau",     active:popup==="soicau",     onClick:()=>setPopup(popup==="soicau"?null:"soicau")},
+              {angle:  20,icon:<IcoHand/>,  id:"hand",       active:handMode,             onClick:()=>setHandMode(p=>!p)},
+            ];
+            return <>{defs.map(d=>mkBtn(d))}</>;
           })()}
         </div>
 
