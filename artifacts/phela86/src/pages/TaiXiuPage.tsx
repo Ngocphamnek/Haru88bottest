@@ -400,7 +400,7 @@ function SideIconBtn({icon,label,active,onClick}:{icon:React.ReactNode;label:str
   return (
     <button onClick={onClick} title={label} style={{
       display:"flex",alignItems:"center",justifyContent:"center",
-      background:"none",border:"none",padding:0,cursor:"pointer",
+      padding:0,cursor:"pointer",
       width:26,height:26,borderRadius:"50%",
       background:active
         ?"linear-gradient(145deg,#ffe066,#c8860a)"
@@ -1340,48 +1340,34 @@ export default function TaiXiuPage() {
             </div>
           </div>
 
-          {/* Arc buttons — curved along the top-left ellipse of the oval
-               Oval semi-axes: a=208 (w/2), b=100 (h/2), center=(208,100)
-               Outer radius offset ~18px for button clearance
-               Angles: -155°, -125°, -100° → left quarter of top arc */}
-          {[
-            {angle:-155, icon:<IcoTrophy/>, popupKey:"leaderboard" as Popup, label:"TOP THẮNG"},
-            {angle:-125, icon:<IcoBook/>,   popupKey:"rules"        as Popup, label:"HƯỚNG DẪN"},
-            {angle:-100, icon:<IcoClock/>,  popupKey:"history"      as Popup, label:"LỊCH SỬ"},
-          ].map(({angle,icon,popupKey,label})=>{
-            const rad = angle * Math.PI / 180;
-            const cx = 208 + 226 * Math.cos(rad); // outer ellipse a=226
-            const cy = 100 + 117 * Math.sin(rad); // outer ellipse b=117
-            const rot = Math.atan2(117*Math.cos(rad), -226*Math.sin(rad)) * 180/Math.PI;
-            return (
-              <div key={popupKey} style={{position:"absolute",left:cx-13,top:cy-13,transform:`rotate(${rot}deg)`}}>
-                <SideIconBtn icon={icon} label={label} active={popup===popupKey} onClick={()=>setPopup(popup===popupKey?null:popupKey)}/>
-              </div>
-            );
-          })}
-
-          {/* Left side – vertical: Soi Cầu + Tay */}
-          <div style={{position:"absolute",left:-40,top:"50%",transform:"translateY(-50%)",display:"flex",flexDirection:"column",gap:7}}>
-            <SideIconBtn icon={<IcoChart/>} label="SOI CẦU"    active={popup==="soicau"} onClick={()=>setPopup(popup==="soicau"?null:"soicau")}/>
-            <SideIconBtn icon={<IcoHand/>}  label="CHẾ ĐỘ TAY" active={handMode}         onClick={()=>setHandMode(p=>!p)}/>
-          </div>
-
-          {/* Right arc — curved along top-right ellipse: angles -80°, -55°, -25° */}
-          {[
-            {angle:-80,  icon:<IcoTrophy/>, popupKey:"leaderboard" as Popup, label:"TOP THẮNG"},
-            {angle:-55,  icon:<IcoBook/>,   popupKey:"rules"        as Popup, label:"HƯỚNG DẪN"},
-            {angle:-25,  icon:<IcoClock/>,  popupKey:"history"      as Popup, label:"LỊCH SỬ"},
-          ].map(({angle,icon,popupKey,label})=>{
-            const rad = angle * Math.PI / 180;
-            const cx = 208 + 226 * Math.cos(rad);
-            const cy = 100 + 117 * Math.sin(rad);
-            const rot = Math.atan2(117*Math.cos(rad), -226*Math.sin(rad)) * 180/Math.PI;
-            return (
-              <div key={popupKey} style={{position:"absolute",left:cx-13,top:cy-13,transform:`rotate(${rot}deg)`}}>
-                <SideIconBtn icon={icon} label={label} active={popup===popupKey} onClick={()=>setPopup(popup===popupKey?null:popupKey)}/>
-              </div>
-            );
-          })}
+          {/* ── Arc buttons around the oval sides ──
+               Oval center=(208,100), semi-axes a=208, b=100.
+               Outer ellipse a=224, b=114 for button centers.
+               LEFT 3  : upper-left(-148°), left-mid(178°), lower-left(148°)
+               RIGHT 2 : upper-right(-32°), lower-right(32°)            */}
+          {(()=>{
+            const A=224, B=114;
+            const arc=(angle:number,icon:React.ReactNode,key:Popup|"hand",active:boolean,onClick:()=>void)=>{
+              const r=angle*Math.PI/180;
+              const cx=208+A*Math.cos(r), cy=100+B*Math.sin(r);
+              const rot=Math.atan2(B*Math.cos(r),-A*Math.sin(r))*180/Math.PI;
+              return(
+                <div key={key??angle} style={{position:"absolute",left:cx-13,top:cy-13,transform:`rotate(${rot}deg)`}}>
+                  {key==="hand"
+                    ? <SideIconBtn icon={icon} label="CHẾ ĐỘ TAY" active={active} onClick={onClick}/>
+                    : <SideIconBtn icon={icon} label="" active={active} onClick={onClick}/>
+                  }
+                </div>
+              );
+            };
+            return(<>
+              {arc(-148,<IcoTrophy/>,"leaderboard",popup==="leaderboard",()=>setPopup(popup==="leaderboard"?null:"leaderboard"))}
+              {arc( 178,<IcoBook/>,"rules",popup==="rules",()=>setPopup(popup==="rules"?null:"rules"))}
+              {arc( 148,<IcoClock/>,"history",popup==="history",()=>setPopup(popup==="history"?null:"history"))}
+              {arc( -32,<IcoChart/>,"soicau",popup==="soicau",()=>setPopup(popup==="soicau"?null:"soicau"))}
+              {arc(  32,<IcoHand/>,"hand",handMode,()=>setHandMode(p=>!p))}
+            </>);
+          })()}
         </div>
 
         {/* Chip selector — only visible when a side is selected */}
