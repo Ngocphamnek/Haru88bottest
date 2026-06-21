@@ -546,119 +546,143 @@ const STRAND_PALETTE=[
   {fill:"#004a5b",stroke:"#33aacc",text:"#fff"}, // xanh nước biển
 ];
 
-function SoiCauPopup({history,onClose}:{history:DiceRecord[];onClose:()=>void}) {
-  const ROWS=6, CELL=22, GAP=1;
-  const MIN_COLS=20;
+/* Dice trajectory chart — 3 threads × 13 sessions × 6 rows */
+const DICE_COLORS=[
+  {main:"#e03030",light:"#ff8888",label:"Xúc xắc 1"},
+  {main:"#c8a000",light:"#FFD700",label:"Xúc xắc 2"},
+  {main:"#1a6fd4",light:"#6eaaff",label:"Xúc xắc 3"},
+];
+const MAX_SESSIONS=13;
+const CHART_CELL=18, CHART_GAP=18; // 1 data col + 1 gap col = 36px per session
 
-  const {cells,maxCol} = useMemo(()=>{
-    const cells:{col:number;row:number;rec:DiceRecord;beadIdx:number}[]=[];
-    const occ=new Set<string>();
-    let col=0, row=0;
-    let prev:string|null=null;
-    let beadIdx=0;
-    const ordered=[...history].reverse();
-    for(const rec of ordered){
-      if(prev!==null){
-        if(rec.result===prev){
-          if(row+1<ROWS) row++;
-          else col++;
-        } else {
-          col++;
-          row=0;
-          while(occ.has(`${col}-${row}`)) col++;
-        }
-      }
-      while(occ.has(`${col}-${row}`)) col++;
-      occ.add(`${col}-${row}`);
-      cells.push({col,row,rec,beadIdx:beadIdx++});
-      prev=rec.result;
-    }
-    return {cells, maxCol:cells.length>0?Math.max(...cells.map(c=>c.col))+1:0};
-  },[history]);
+function SoiCauPopup({history,onClose}:{history:DiceRecord[];onClose:()=>void}) {
+  const [visible,setVisible]=useState([true,true,true]);
+  const toggle=(i:number)=>setVisible(v=>v.map((b,j)=>j===i?!b:b));
+
+  const sessions=useMemo(()=>[...history].reverse().slice(0,MAX_SESSIONS),[history]);
 
   const taiCount=history.filter(r=>r.result==="T").length;
   const xiuCount=history.filter(r=>r.result==="X").length;
   const last=history[0];
-  const displayCols=Math.max(maxCol,MIN_COLS);
-  const svgW=displayCols*(CELL+GAP)+GAP;
-  const svgH=ROWS*(CELL+GAP)+GAP;
+
+  /* SVG geometry */
+  const LABEL_W=16, DOT_R=6, ROW_H=20;
+  const svgH=6*ROW_H+8;
+  const totalCols=MAX_SESSIONS;
+  const STEP=CHART_CELL+CHART_GAP;
+  const svgW=LABEL_W+totalCols*STEP+CHART_CELL;
+
+  const xOf=(si:number)=>LABEL_W+si*STEP+CHART_CELL/2;
+  const yOf=(val:number)=>(6-val)*ROW_H+ROW_H/2+4;
 
   return (
     <PopupShell title="SOI CẦU" onClose={onClose} wide>
       <div style={{padding:"10px 12px"}}>
-        {/* Stats overview */}
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10,padding:"10px 14px",borderRadius:10,background:"rgba(0,0,0,0.35)",border:"1px solid rgba(139,94,0,0.35)"}}>
+
+        {/* Stats */}
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10,padding:"8px 14px",borderRadius:10,background:"rgba(0,0,0,0.35)",border:"1px solid rgba(139,94,0,0.35)"}}>
           <div style={{textAlign:"center"}}>
-            <div style={{
-              fontSize:20,fontWeight:900,color:"#fff",background:"#0a1a66",borderRadius:"50%",
-              width:40,height:40,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 3px",
-              border:"2px solid rgba(50,80,220,0.9)",boxShadow:"0 2px 8px rgba(50,80,220,0.4)"
-            }}>{xiuCount}</div>
-            <div style={{fontSize:9,color:"#88aaff",letterSpacing:1,fontWeight:700}}>XỈU</div>
+            <div style={{fontSize:20,fontWeight:900,color:"#fff",background:"#0a1a66",borderRadius:"50%",width:38,height:38,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 2px",border:"2px solid rgba(50,80,220,0.9)"}}>{xiuCount}</div>
+            <div style={{fontSize:9,color:"#88aaff",fontWeight:700}}>XỈU</div>
           </div>
           <div style={{textAlign:"center",fontSize:10}}>
-            {last?(
-              <>
-                <div style={{fontWeight:900,color:"#FFCC66",fontSize:11,marginBottom:3}}>#{last.session}</div>
-                <div style={{color:last.result==="T"?"#ff8888":"#88aaff",fontWeight:700}}>
-                  {last.result==="T"?"🔴 TÀI":"🔵 XỈU"}&nbsp;({last.dice.join("-")})
-                </div>
-                <div style={{fontSize:9,color:"rgba(255,255,255,0.35)",marginTop:2}}>Phiên gần nhất</div>
-              </>
-            ):(
-              <span style={{color:"rgba(255,255,255,0.3)",fontSize:10}}>Chưa có dữ liệu</span>
+            {last?(<>
+              <div style={{fontWeight:900,color:"#FFCC66",fontSize:11,marginBottom:2}}>#{last.session}</div>
+              <div style={{color:last.result==="T"?"#ff8888":"#88aaff",fontWeight:700}}>
+                {last.result==="T"?"🔴 TÀI":"🔵 XỈU"}&nbsp;
+                <span style={{color:"rgba(255,255,255,0.5)"}}>({last.dice.join("-")})</span>
+              </div>
+              <div style={{fontSize:9,color:"rgba(255,255,255,0.35)"}}>Phiên gần nhất</div>
+            </>):(
+              <span style={{color:"rgba(255,255,255,0.3)"}}>Chưa có dữ liệu</span>
             )}
           </div>
           <div style={{textAlign:"center"}}>
-            <div style={{
-              fontSize:20,fontWeight:900,color:"#fff",background:"#8a0010",borderRadius:"50%",
-              width:40,height:40,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 3px",
-              border:"2px solid rgba(196,30,58,0.9)",boxShadow:"0 2px 8px rgba(196,30,58,0.4)"
-            }}>{taiCount}</div>
-            <div style={{fontSize:9,color:"#ff8888",letterSpacing:1,fontWeight:700}}>TÀI</div>
+            <div style={{fontSize:20,fontWeight:900,color:"#fff",background:"#8a0010",borderRadius:"50%",width:38,height:38,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 2px",border:"2px solid rgba(196,30,58,0.9)"}}>{taiCount}</div>
+            <div style={{fontSize:9,color:"#ff8888",fontWeight:700}}>TÀI</div>
           </div>
         </div>
 
-        {/* Legend */}
-        <div style={{display:"flex",gap:6,marginBottom:6,fontSize:9,flexWrap:"wrap",alignItems:"center"}}>
-          <span style={{color:"rgba(255,255,255,0.4)",marginRight:2}}>Mỗi hạt 1 màu:</span>
-          {STRAND_PALETTE.map((p,i)=>(
-            <div key={i} style={{width:11,height:11,borderRadius:"50%",background:p.fill,border:`1.5px solid ${p.stroke}`}}/>
+        {/* Toggle buttons */}
+        <div style={{display:"flex",gap:6,marginBottom:8}}>
+          {DICE_COLORS.map((c,i)=>(
+            <button key={i} onClick={()=>toggle(i)} style={{
+              display:"flex",alignItems:"center",gap:5,padding:"4px 10px",borderRadius:20,
+              background:visible[i]?c.main:"rgba(255,255,255,0.06)",
+              border:`1.5px solid ${visible[i]?c.light:"rgba(255,255,255,0.2)"}`,
+              color:visible[i]?"#fff":"rgba(255,255,255,0.35)",
+              fontSize:9,fontWeight:700,cursor:"pointer",
+              WebkitTapHighlightColor:"transparent",
+            }}>
+              <div style={{width:8,height:8,borderRadius:"50%",background:visible[i]?c.light:"rgba(255,255,255,0.2)"}}/>
+              {c.label}{!visible[i]&&" (ẩn)"}
+            </button>
           ))}
-          <span style={{color:"rgba(255,255,255,0.3)",marginLeft:4}}>· chấm 🔴TÀI 🔵XỈU</span>
         </div>
 
-        {/* Big Road grid */}
-        <div style={{fontSize:9,color:"rgba(255,215,0,0.6)",fontWeight:900,marginBottom:5,letterSpacing:1}}>BẢNG CẦU CHÍNH</div>
+        {/* Trajectory chart */}
+        <div style={{fontSize:9,color:"rgba(255,215,0,0.6)",fontWeight:900,marginBottom:5,letterSpacing:1}}>
+          BẢNG CẦU (13 phiên gần nhất — mỗi cột 1 phiên)
+        </div>
         {history.length===0?(
-          <div style={{color:"rgba(255,255,255,0.3)",fontSize:10,textAlign:"center",padding:"20px 0",borderRadius:8,border:"1px solid rgba(139,94,0,0.25)"}}>
+          <div style={{color:"rgba(255,255,255,0.3)",fontSize:10,textAlign:"center",padding:"24px 0",borderRadius:8,border:"1px solid rgba(139,94,0,0.25)"}}>
             Chưa có dữ liệu — chờ kết quả đầu tiên
           </div>
         ):(
-          <div style={{overflowX:"auto",borderRadius:8,border:"1px solid rgba(216,162,74,0.4)",background:"rgba(0,0,0,0.5)"}}>
-            <svg width={svgW} height={svgH} style={{display:"block"}}>
-              {Array.from({length:ROWS+1},(_,r)=>(
-                <line key={`hr${r}`} x1={0} y1={r*(CELL+GAP)} x2={svgW} y2={r*(CELL+GAP)} stroke="rgba(139,94,0,0.4)" strokeWidth="1"/>
-              ))}
-              {Array.from({length:displayCols+1},(_,c)=>(
-                <line key={`vc${c}`} x1={c*(CELL+GAP)} y1={0} x2={c*(CELL+GAP)} y2={svgH} stroke="rgba(139,94,0,0.4)" strokeWidth="1"/>
-              ))}
-              {cells.map(({col,row,rec,beadIdx},i)=>{
-                const isTai=rec.result==="T";
-                const pal=STRAND_PALETTE[beadIdx % STRAND_PALETTE.length];
-                const cx=col*(CELL+GAP)+GAP/2+CELL/2+0.5;
-                const cy=row*(CELL+GAP)+GAP/2+CELL/2+0.5;
-                const total=rec.dice[0]+rec.dice[1]+rec.dice[2];
+          <div style={{overflowX:"auto",borderRadius:8,border:"1px solid rgba(216,162,74,0.35)",background:"rgba(0,0,0,0.55)"}}>
+            <svg width={svgW} height={svgH} style={{display:"block",overflow:"visible"}}>
+              {/* Horizontal grid lines + row labels */}
+              {[6,5,4,3,2,1].map((val,ri)=>{
+                const y=yOf(val);
                 return (
-                  <g key={i}>
-                    {/* outer ring = strand color */}
-                    <circle cx={cx} cy={cy} r={CELL/2-0.5} fill="none" stroke={pal.stroke} strokeWidth="1.5" opacity={0.5}/>
-                    {/* inner fill */}
-                    <circle cx={cx} cy={cy} r={CELL/2-2.5} fill={pal.fill} stroke={pal.stroke} strokeWidth="1"/>
-                    {/* T/X label top-right micro dot */}
-                    <circle cx={cx+5} cy={cy-5} r={3}
-                      fill={isTai?"#ff4444":"#4488ff"} stroke="#000" strokeWidth="0.5"/>
-                    <text x={cx} y={cy+3.5} textAnchor="middle" fontSize={8} fontWeight="bold" fill={pal.text}>{total}</text>
+                  <g key={val}>
+                    <line x1={LABEL_W} y1={y} x2={svgW} y2={y} stroke="rgba(139,94,0,0.3)" strokeWidth="1" strokeDasharray="3,4"/>
+                    <text x={LABEL_W-3} y={y+3.5} textAnchor="end" fontSize={9} fill="rgba(255,215,0,0.6)" fontWeight="700">{val}</text>
+                  </g>
+                );
+              })}
+              {/* Session column markers */}
+              {sessions.map((_,si)=>(
+                <line key={si} x1={xOf(si)} y1={0} x2={xOf(si)} y2={svgH}
+                  stroke="rgba(255,255,255,0.04)" strokeWidth={CHART_CELL} />
+              ))}
+              {/* Session numbers at top */}
+              {sessions.map((rec,si)=>(
+                <text key={si} x={xOf(si)} y={10} textAnchor="middle" fontSize={7}
+                  fill="rgba(255,215,0,0.35)">{rec.session%100}</text>
+              ))}
+              {/* Connecting lines (draw before dots so dots are on top) */}
+              {DICE_COLORS.map((c,di)=>{
+                if(!visible[di]) return null;
+                const pts=sessions.map((rec,si)=>({x:xOf(si),y:yOf(rec.dice[di])}));
+                return (
+                  <g key={di}>
+                    {pts.slice(1).map((pt,idx)=>(
+                      <line key={idx}
+                        x1={pts[idx].x} y1={pts[idx].y}
+                        x2={pt.x} y2={pt.y}
+                        stroke={c.light} strokeWidth="2" opacity={0.75}
+                        strokeLinecap="round"/>
+                    ))}
+                  </g>
+                );
+              })}
+              {/* Dots */}
+              {DICE_COLORS.map((c,di)=>{
+                if(!visible[di]) return null;
+                return (
+                  <g key={di}>
+                    {sessions.map((rec,si)=>{
+                      const cx=xOf(si), cy=yOf(rec.dice[di]);
+                      const val=rec.dice[di];
+                      return (
+                        <g key={si}>
+                          <circle cx={cx} cy={cy} r={DOT_R+2} fill={c.main} opacity={0.25}/>
+                          <circle cx={cx} cy={cy} r={DOT_R} fill={c.main} stroke={c.light} strokeWidth="1.5"/>
+                          <text x={cx} y={cy+3.5} textAnchor="middle" fontSize={8} fontWeight="900" fill="#fff">{val}</text>
+                        </g>
+                      );
+                    })}
                   </g>
                 );
               })}
@@ -666,40 +690,35 @@ function SoiCauPopup({history,onClose}:{history:DiceRecord[];onClose:()=>void}) 
           </div>
         )}
 
-        {/* Sub-road */}
+        {/* Bead strip — last 26 sessions */}
         {history.length>0&&(
           <>
-          <div style={{fontSize:9,color:"rgba(255,215,0,0.6)",fontWeight:900,margin:"10px 0 5px",letterSpacing:1}}>BẢNG CẦU PHỤ (40 phiên gần nhất)</div>
+          <div style={{fontSize:9,color:"rgba(255,215,0,0.6)",fontWeight:900,margin:"10px 0 5px",letterSpacing:1}}>
+            CHUỖI KẾT QUẢ (26 phiên gần nhất)
+          </div>
           <div style={{overflowX:"auto",borderRadius:8,border:"1px solid rgba(139,94,0,0.3)",background:"rgba(0,0,0,0.4)",padding:"5px 6px"}}>
-            <div style={{display:"flex",gap:3,minWidth:"max-content",alignItems:"center"}}>
-              {[...history].reverse().slice(0,40).map((rec,i)=>{
+            <div style={{display:"flex",gap:4,minWidth:"max-content",alignItems:"center"}}>
+              {[...history].reverse().slice(0,26).map((rec,i)=>{
                 const isTai=rec.result==="T";
-                const total=rec.dice[0]+rec.dice[1]+rec.dice[2];
-                const pal=STRAND_PALETTE[i % STRAND_PALETTE.length];
+                const total=rec.dice.reduce((a,b)=>a+b,0);
                 return (
                   <div key={i} style={{
-                    position:"relative",
-                    width:22,height:22,borderRadius:"50%",flexShrink:0,
-                    background:pal.fill,
-                    border:`1.5px solid ${pal.stroke}`,
+                    position:"relative",width:22,height:22,borderRadius:"50%",flexShrink:0,
+                    background:isTai?"#8a0010":"#0a1a66",
+                    border:`1.5px solid ${isTai?"rgba(196,30,58,0.9)":"rgba(50,80,220,0.9)"}`,
                     display:"flex",alignItems:"center",justifyContent:"center",
                     fontSize:7,fontWeight:900,color:"#fff",
                   }}>
                     {total}
-                    <div style={{
-                      position:"absolute",top:0,right:0,
-                      width:7,height:7,borderRadius:"50%",
-                      background:isTai?"#ff4444":"#4488ff",
-                      border:"1px solid #000",
-                    }}/>
                   </div>
                 );
               })}
-              <div style={{color:"#FFD700",fontSize:14,marginLeft:4,flexShrink:0}}>›</div>
+              <div style={{color:"#FFD700",fontSize:14,marginLeft:2,flexShrink:0}}>›</div>
             </div>
           </div>
           </>
         )}
+
       </div>
     </PopupShell>
   );
