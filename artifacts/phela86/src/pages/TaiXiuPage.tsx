@@ -1340,12 +1340,25 @@ export default function TaiXiuPage() {
             </div>
           </div>
 
-          {/* Top arc – left area: Leaderboard, Rules, History */}
-          <div style={{position:"absolute",top:-13,left:28,display:"flex",flexDirection:"row",gap:7}}>
-            <SideIconBtn icon={<IcoTrophy/>} label="TOP THẮNG" active={popup==="leaderboard"} onClick={()=>setPopup(popup==="leaderboard"?null:"leaderboard")}/>
-            <SideIconBtn icon={<IcoBook/>}   label="HƯỚNG DẪN" active={popup==="rules"}       onClick={()=>setPopup(popup==="rules"?null:"rules")}/>
-            <SideIconBtn icon={<IcoClock/>}  label="LỊCH SỬ"   active={popup==="history"}     onClick={()=>setPopup(popup==="history"?null:"history")}/>
-          </div>
+          {/* Arc buttons — curved along the top-left ellipse of the oval
+               Oval semi-axes: a=208 (w/2), b=100 (h/2), center=(208,100)
+               Outer radius offset ~18px for button clearance
+               Angles: -155°, -125°, -100° → left quarter of top arc */}
+          {[
+            {angle:-155, icon:<IcoTrophy/>, popupKey:"leaderboard" as Popup, label:"TOP THẮNG"},
+            {angle:-125, icon:<IcoBook/>,   popupKey:"rules"        as Popup, label:"HƯỚNG DẪN"},
+            {angle:-100, icon:<IcoClock/>,  popupKey:"history"      as Popup, label:"LỊCH SỬ"},
+          ].map(({angle,icon,popupKey,label})=>{
+            const rad = angle * Math.PI / 180;
+            const cx = 208 + 226 * Math.cos(rad); // outer ellipse a=226
+            const cy = 100 + 117 * Math.sin(rad); // outer ellipse b=117
+            const rot = Math.atan2(117*Math.cos(rad), -226*Math.sin(rad)) * 180/Math.PI;
+            return (
+              <div key={popupKey} style={{position:"absolute",left:cx-13,top:cy-13,transform:`rotate(${rot}deg)`}}>
+                <SideIconBtn icon={icon} label={label} active={popup===popupKey} onClick={()=>setPopup(popup===popupKey?null:popupKey)}/>
+              </div>
+            );
+          })}
 
           {/* Left arc – vertical: Soi Cầu + Tay */}
           <div style={{position:"absolute",left:-40,top:"50%",transform:"translateY(-50%)",display:"flex",flexDirection:"column",gap:7}}>
