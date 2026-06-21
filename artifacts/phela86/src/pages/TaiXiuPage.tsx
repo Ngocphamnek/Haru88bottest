@@ -11,6 +11,8 @@ type Popup = "rules" | "leaderboard" | "soicau" | "history" | null;
 type DiceRecord  = {session:number; dice:[number,number,number]; result:"T"|"X"; time:string};
 type BetRecord   = {session:number; side:"TAI"|"XIU"; amount:number; won:boolean; time:string};
 type LBEntry     = {name:string; totalWin:number; gamesPlayed:number; wins:number};
+type PlayerBet   = {name:string; amount:number; refunded?:boolean};
+type SessionBetRecord = {session:number; result:"T"|"X"; tai:PlayerBet[]; xiu:PlayerBet[]; dice:[number,number,number]; time:string};
 
 const CHIPS = [
   { label:"1K",  value:1_000 },    { label:"10K",  value:10_000 },
@@ -22,6 +24,11 @@ const ROUND          = 60;
 const THROW_MS       = 1800;
 const RESULT_MS      = 5000;
 const PAYOUT         = 1.95;
+const LATE_BET_SECS  = 8; // hoàn tiền nếu đặt trong 8s cuối
+
+const FAKE_PLAYERS=["Hùng***","Linh***","Minh***","An***","Hoa***","Tuấn***","Trang***","Dũng***","Nga***","Bình***","Thắng***","Lan***","Quân***","Mai***","Hải***","Phương***","Đức***","Yến***","Nam***","Thu***","Khoa***","Việt***","Quỳnh***","Hà***","Long***","Sơn***","Thủy***","Khánh***","Đạt***","Bảo***"];
+function pickRandPlayers(n:number){return [...FAKE_PLAYERS].sort(()=>Math.random()-0.5).slice(0,n);}
+function genFakeBets(players:string[]):PlayerBet[]{return players.map(name=>({name,amount:CHIPS[randInt(0,5)].value*randInt(1,8)}));}
 
 const DOTS: Record<number,[number,number][]> = {
   1:[[50,50]],
@@ -479,7 +486,7 @@ function ChipBtn({label,selected,onClick}:{label:string;selected:boolean;onClick
     }}>{label}</button>
   );
 }
-function Bead({val}:{val:"T"|"X"}) {
+function Bead({val,onClick}:{val:"T"|"X";onClick?:()=>void}) {
   const isTai = val==="T";
   const innerColor = isTai
     ? "radial-gradient(circle at 35% 30%,#ff8888,#C41E3A,#7a0010)"
@@ -491,12 +498,14 @@ function Bead({val}:{val:"T"|"X"}) {
     <div style={{
       position:"relative",width:18,height:18,flexShrink:0,
       display:"flex",alignItems:"center",justifyContent:"center",
-    }}>
+      cursor:onClick?"pointer":"default",
+    }} onClick={onClick}>
       {/* outer ring */}
       <div style={{
         position:"absolute",inset:0,borderRadius:"50%",
         border:`1.5px solid ${ringColor}`,
         boxShadow:`0 0 5px ${glowColor},inset 0 0 3px ${glowColor}`,
+        transition:"box-shadow .15s",
       }}/>
       {/* inner filled circle */}
       <div style={{
@@ -524,6 +533,128 @@ function PopupShell({title,onClose,children,wide=false}:{title:string;onClose:()
           <button onClick={onClose} style={{color:"#FFD700",fontWeight:900,fontSize:18,background:"none",border:"none",cursor:"pointer",lineHeight:1}}>✕</button>
         </div>
         <div style={{overflowY:"auto",flex:1}}>{children}</div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   SESSION DETAIL POPUP — ai đặt cái gì phiên đó
+═══════════════════════════════════════════ */
+function SessionDetailPopup({rec,onClose}:{rec:SessionBetRecord;onClose:()=>void}){
+  const isTai=rec.result==="T";
+  const taiTotal=rec.tai.reduce((s,b)=>s+b.amount,0);
+  const xiuTotal=rec.xiu.reduce((s,b)=>s+b.amount,0);
+  const taiReturn=rec.tai.reduce((s,b)=>s+(b.refunded?b.amount:isTai?Math.floor(b.amount*1.95):0),0);
+  const xiuReturn=rec.xiu.reduce((s,b)=>s+(b.refunded?b.amount:!isTai?Math.floor(b.amount*1.95):0),0);
+  const maxRows=Math.max(rec.tai.length,rec.xiu.length);
+
+  const colH:React.CSSProperties={fontSize:8,fontWeight:900,letterSpacing:0.5,padding:"3px 0",color:"rgba(255,215,0,0.6)",borderBottom:"1px solid rgba(139,94,0,0.3)",textAlign:"center"};
+  const cell:React.CSSProperties={fontSize:8,color:"rgba(255,255,255,0.8)",textAlign:"center",padding:"2px 2px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"};
+
+  function Side({players,won}:{players:PlayerBet[];won:boolean}){
+    return(
+      <div style={{display:"grid",gridTemplateColumns:"44px 1fr 44px",gap:2}}>
+        <div style={colH}>Người chơi</div>
+        <div style={{...colH,gridColumn:"2"}}>Cược</div>
+        <div style={colH}>Trả</div>
+        {players.map((p,i)=>{
+          const ret=p.refunded?p.amount:won?Math.floor(p.amount*1.95):0;
+          return(
+            <React.Fragment key={i}>
+              <div style={{...cell,color:p.name==="Bạn"?"#FFD700":"rgba(255,255,255,0.8)"}}>{p.name}</div>
+              <div style={cell}>{fmtVN(p.amount)}</div>
+              <div style={{...cell,color:p.refunded?"#aaa":won?"#4dff88":"rgba(255,255,255,0.3)"}}>{ret>0?fmtVN(ret):"—"}</div>
+            </React.Fragment>
+          );
+        })}
+        {Array.from({length:Math.max(0,maxRows-players.length)}).map((_,i)=>(
+          <React.Fragment key={"e"+i}>
+            <div style={cell}/>
+            <div style={cell}/>
+            <div style={cell}/>
+          </React.Fragment>
+        ))}
+        <div style={{gridColumn:"1/-1",borderTop:"1px solid rgba(139,94,0,0.3)",marginTop:2,paddingTop:3,display:"flex",justifyContent:"space-between"}}>
+          <span style={{fontSize:8,color:"rgba(255,215,0,0.55)"}}>TỔNG: {fmtVN(players.reduce((s,b)=>s+b.amount,0))}</span>
+          <span style={{fontSize:8,color:won?"#4dff88":"rgba(255,255,255,0.35)"}}>TRẢ: {fmtVN(won?players.reduce((s,b)=>s+(b.refunded?b.amount:Math.floor(b.amount*1.95)),0):0)}</span>
+        </div>
+      </div>
+    );
+  }
+
+  return(
+    <div className="fixed inset-0 flex items-center justify-center" style={{zIndex:70,background:"rgba(0,0,0,0.82)"}} onClick={onClose}>
+      <div onClick={e=>e.stopPropagation()} style={{
+        width:"min(520px,95vw)",maxHeight:"80vh",display:"flex",flexDirection:"column",
+        borderRadius:18,overflow:"hidden",
+        background:"linear-gradient(180deg,#1a0c02 0%,#0e0600 100%)",
+        boxShadow:"0 0 0 2px #6b3800,0 0 0 4px #D8A24A,0 0 0 6px #6b3800,0 20px 60px rgba(0,0,0,0.95)",
+      }}>
+        {/* header */}
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 14px",borderBottom:"1px solid rgba(139,94,0,0.4)",background:"rgba(139,94,0,0.12)"}}>
+          <div style={{display:"flex",alignItems:"center",gap:8}}>
+            <span style={{color:"#FFD700",fontWeight:900,fontSize:13,letterSpacing:2}}>LỊCH SỬ PHIÊN</span>
+            <span style={{background:"rgba(255,215,0,0.12)",borderRadius:6,padding:"1px 8px",fontSize:10,color:"rgba(255,215,0,0.7)"}}>#{rec.session}</span>
+          </div>
+          <button onClick={onClose} style={{color:"#FFD700",fontWeight:900,fontSize:18,background:"none",border:"none",cursor:"pointer",lineHeight:1}}>✕</button>
+        </div>
+
+        {/* dice result summary */}
+        <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:12,padding:"10px 14px 8px",borderBottom:"1px solid rgba(139,94,0,0.2)"}}>
+          <div style={{display:"flex",gap:6}}>
+            {rec.dice.map((d,i)=><DiceFace key={i} value={d} size={32}/>)}
+          </div>
+          <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2}}>
+            <span style={{fontSize:11,color:"rgba(255,255,255,0.4)"}}>Tổng: <strong style={{color:"#FFD700"}}>{rec.dice.reduce((a,b)=>a+b,0)}</strong></span>
+            <span style={{fontSize:12,fontWeight:900,color:isTai?"#ff6666":"#88aaff",letterSpacing:2}}>{isTai?"TÀI THẮNG":"XỈU THẮNG"}</span>
+          </div>
+          <div style={{fontSize:9,color:"rgba(255,255,255,0.3)"}}>{rec.time}</div>
+        </div>
+
+        {/* two-column bet table */}
+        <div style={{overflowY:"auto",flex:1,padding:"10px 10px"}}>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1px 1fr",gap:8}}>
+            {/* TÀI column */}
+            <div>
+              <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:6}}>
+                <div style={{width:10,height:10,borderRadius:"50%",background:"radial-gradient(#ff8888,#C41E3A)"}}/>
+                <span style={{color:"#ff7777",fontWeight:900,fontSize:12,letterSpacing:2}}>TÀI</span>
+                <span style={{fontSize:9,color:"rgba(255,255,255,0.35)",marginLeft:"auto"}}>{rec.tai.length} người</span>
+              </div>
+              <Side players={rec.tai} won={isTai}/>
+            </div>
+            {/* divider */}
+            <div style={{background:"rgba(139,94,0,0.3)"}}/>
+            {/* XỈU column */}
+            <div>
+              <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:6}}>
+                <div style={{width:10,height:10,borderRadius:"50%",background:"radial-gradient(#88aaff,#1a3acc)"}}/>
+                <span style={{color:"#88aaff",fontWeight:900,fontSize:12,letterSpacing:2}}>XỈU</span>
+                <span style={{fontSize:9,color:"rgba(255,255,255,0.35)",marginLeft:"auto"}}>{rec.xiu.length} người</span>
+              </div>
+              <Side players={rec.xiu} won={!isTai}/>
+            </div>
+          </div>
+
+          {/* totals */}
+          <div style={{marginTop:10,padding:"8px 10px",borderRadius:8,background:"rgba(255,215,0,0.06)",border:"1px solid rgba(139,94,0,0.25)",display:"flex",justifyContent:"space-around"}}>
+            <div style={{textAlign:"center"}}>
+              <div style={{fontSize:8,color:"rgba(255,215,0,0.5)"}}>TỔNG CƯỢC TÀI</div>
+              <div style={{fontSize:11,fontWeight:900,color:"#ff7777"}}>{fmtVN(taiTotal)}</div>
+            </div>
+            <div style={{width:1,background:"rgba(139,94,0,0.3)"}}/>
+            <div style={{textAlign:"center"}}>
+              <div style={{fontSize:8,color:"rgba(255,215,0,0.5)"}}>TỔNG CƯỢC XỈU</div>
+              <div style={{fontSize:11,fontWeight:900,color:"#88aaff"}}>{fmtVN(xiuTotal)}</div>
+            </div>
+            <div style={{width:1,background:"rgba(139,94,0,0.3)"}}/>
+            <div style={{textAlign:"center"}}>
+              <div style={{fontSize:8,color:"rgba(255,215,0,0.5)"}}>TỔNG TRẢ</div>
+              <div style={{fontSize:11,fontWeight:900,color:"#4dff88"}}>{fmtVN(isTai?taiReturn:xiuReturn)}</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -962,12 +1093,16 @@ export default function TaiXiuPage() {
   const [selectedSide,setSelectedSide] = useState<"TAI"|"XIU"|null>(null);
   const [resultCountdown,setResultCountdown] = useState(15);
   const [jackpotToast,setJackpotToast] = useState<number|null>(null);
+  const [sessionBetLog,setSessionBetLog] = useState<SessionBetRecord[]>([]);
+  const [selectedBeadSession,setSelectedBeadSession] = useState<SessionBetRecord|null>(null);
+  const [lateBetToast,setLateBetToast] = useState(false);
 
   const timerRef       = useRef<ReturnType<typeof setInterval>|null>(null);
   const phaseRef       = useRef<ReturnType<typeof setTimeout>|null>(null);
   const pendingDice    = useRef<number[]>([1,3,4]);
   const hasTouchedBowl = useRef(false);
   const revealedRef    = useRef(false);
+  const betPlacedAtRef = useRef<number>(ROUND); // countdown value when player placed bet
 
   const [focused, setFocused] = useState(false);
   const panelDragging  = useRef(false);
@@ -1103,36 +1238,61 @@ export default function TaiXiuPage() {
     const sid=sessionIdRef.current;
     setHistory(h=>[isTai?"T":"X",...h.slice(0,19)]);
     setDiceHistory(h=>[{session:sid,dice:d,result:isTai?"T":"X",time:timeStr},...h.slice(0,47)]);
+
     const tb=taiBet; const xb=xiuBet;
+    const isLateBet = betPlacedAtRef.current <= LATE_BET_SECS;
+
+    // Generate fake player bets for this session
+    const nTai=randInt(3,9), nXiu=randInt(3,9);
+    const fakeTai=genFakeBets(pickRandPlayers(nTai));
+    const fakeXiu=genFakeBets(pickRandPlayers(nXiu));
+    // Splice in real player's bet
+    if(tb>0) fakeTai.push({name:"Bạn",amount:tb,refunded:isLateBet&&isTai});
+    if(xb>0) fakeXiu.push({name:"Bạn",amount:xb,refunded:false});
+    setSessionBetLog(prev=>[{session:sid,result:isTai?"T":"X",tai:fakeTai,xiu:fakeXiu,dice:d,time:timeStr},...prev.slice(0,19)]);
+
     if(tb>0||xb>0){
       const side:BetRecord["side"]=tb>0?"TAI":"XIU";
-      const betAmount=tb+xb; // chỉ đặt 1 cửa nên chỉ 1 số > 0
+      const betAmount=tb+xb;
       const won=isTai?(tb>0):(xb>0);
-      const profit=won?Math.floor(betAmount*(PAYOUT-1)):-betAmount;
+
+      // Late bet rule: thắng trong 8s cuối → hoàn tiền, thua → không hoàn
+      let profit: number;
+      if(isLateBet && won){
+        profit=0; // tiền cược được hoàn lại (không lợi, không lỗ)
+        setLateBetToast(true);
+        setTimeout(()=>setLateBetToast(false),3000);
+      } else {
+        profit=won?Math.floor(betAmount*(PAYOUT-1)):-betAmount;
+      }
+
       setBalance(b=>b+profit);
-      if(won) setWinStreak(w=>w+1); else setWinStreak(0);
+      if(won&&!isLateBet) setWinStreak(w=>w+1); else if(!won) setWinStreak(0);
       if(!won){
         setLoseStreak(l=>l+1);
-        // Trích 0.1% tiền thua cộng vào hũ
         const contribution=Math.floor(betAmount*0.001);
         if(contribution>0){
           setJackpot(j=>j+contribution);
           setJackpotToast(contribution);
           setTimeout(()=>setJackpotToast(null),2200);
         }
-      } else setLoseStreak(0);
-      setWinResult({won,amount:Math.abs(profit)});
-      setBetHistory(h=>[{session:sid,side,amount:Math.abs(profit),won,time:timeStr},...h.slice(0,49)]);
+      } else if(!isLateBet) setLoseStreak(0);
+      setWinResult({won:won&&!isLateBet,amount:isLateBet&&won?0:Math.abs(profit)});
+      setBetHistory(h=>[{session:sid,side,amount:Math.abs(profit),won:won&&!isLateBet,time:timeStr},...h.slice(0,49)]);
       setLeaderboard(lb=>{
         const idx=lb.findIndex(e=>e.name==="Bạn");
         if(idx<0) return lb;
         const updated=[...lb];
-        updated[idx]={...updated[idx],gamesPlayed:updated[idx].gamesPlayed+1,wins:updated[idx].wins+(won?1:0),totalWin:updated[idx].totalWin+(won?Math.abs(profit):0)};
+        const didWin=won&&!isLateBet;
+        updated[idx]={...updated[idx],gamesPlayed:updated[idx].gamesPlayed+1,wins:updated[idx].wins+(didWin?1:0),totalWin:updated[idx].totalWin+(didWin?Math.abs(profit):0)};
         return updated.sort((a,b)=>b.totalWin-a.totalWin);
       });
+    } else {
+      // No bet from player — still generate session record for history
     }
     setJustRevealed(true);
     setPhase("RESULT");
+    betPlacedAtRef.current=ROUND; // reset for next round
   }
   // Always keep ref up to date
   doResultRef.current=doResult;
@@ -1417,9 +1577,12 @@ export default function TaiXiuPage() {
               );
             })()}
 
-            {/* History beads — newest on left */}
+            {/* History beads — newest on left — click to view session detail */}
             <div style={{display:"flex",flexDirection:"row-reverse",gap:4,marginTop:8,flexWrap:"nowrap",justifyContent:"flex-end"}}>
-              {history.slice(0,14).map((h,i)=><Bead key={i} val={h}/>)}
+              {history.slice(0,14).map((h,i)=>{
+                const rec=sessionBetLog[i];
+                return <Bead key={i} val={h} onClick={rec?()=>setSelectedBeadSession(rec):undefined}/>;
+              })}
             </div>
             {/* Streaks */}
             <div style={{display:"flex",justifyContent:"center",width:"100%",marginTop:5,paddingInline:12}}>
@@ -1491,6 +1654,7 @@ export default function TaiXiuPage() {
                 disabled={!selectedSide}
                 onClick={()=>{
                   if(!selectedSide||chip<=0) return;
+                  betPlacedAtRef.current=countdown; // record when bet was placed
                   if(selectedSide==="TAI"){setTaiBet(t=>t+chip);setTaiTotal(t=>t+chip);}
                   else{setXiuBet(x=>x+chip);setXiuTotal(x=>x+chip);}
                   setChip(0);
@@ -1512,6 +1676,7 @@ export default function TaiXiuPage() {
               <button
                 onClick={()=>{
                   if(!selectedSide||balance<=0) return;
+                  betPlacedAtRef.current=countdown; // record when bet was placed
                   const amt=balance;
                   if(selectedSide==="TAI"){setTaiBet(t=>t+amt);setTaiTotal(t=>t+amt);}
                   else{setXiuBet(x=>x+amt);setXiuTotal(x=>x+amt);}
@@ -1697,6 +1862,28 @@ export default function TaiXiuPage() {
       )}
       {popup==="history"&&(
         <HistoryPopup history={betHistory} onClose={()=>setPopup(null)}/>
+      )}
+      {selectedBeadSession&&(
+        <SessionDetailPopup rec={selectedBeadSession} onClose={()=>setSelectedBeadSession(null)}/>
+      )}
+
+      {/* Late bet toast */}
+      {lateBetToast&&(
+        <div style={{
+          position:"fixed",top:"50%",left:"50%",transform:"translate(-50%,-50%)",
+          zIndex:90,padding:"14px 22px",borderRadius:14,textAlign:"center",
+          background:"linear-gradient(135deg,#1a0a00,#2a1400)",
+          border:"2px solid #FFD700",
+          boxShadow:"0 0 30px rgba(255,215,0,0.4)",
+          animation:"fadeIn .3s ease",
+        }}>
+          <div style={{fontSize:20,marginBottom:4}}>⚠️</div>
+          <div style={{color:"#FFD700",fontWeight:900,fontSize:13,letterSpacing:1}}>HOÀN TIỀN</div>
+          <div style={{color:"rgba(255,255,255,0.7)",fontSize:10,marginTop:4,lineHeight:1.5}}>
+            Đặt cược trong 8 giây cuối.<br/>
+            Bên thắng bị hoàn — tiền cược trả về.
+          </div>
+        </div>
       )}
     </div>
   );
