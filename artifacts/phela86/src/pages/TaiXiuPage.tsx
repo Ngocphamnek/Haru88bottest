@@ -417,29 +417,29 @@ function SideIconBtn({icon,label,active,onClick}:{icon:React.ReactNode;label:str
 }
 
 /* ─── Custom SVG icons ─── */
-const IcoTrophy=()=>(
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+const IcoTrophy=({s=18}:{s?:number})=>(
+  <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
     <path d="M8 21h8M12 17v4M5 3H3a2 2 0 000 4c0 3 2 5 4 6M19 3h2a2 2 0 010 4c0 3-2 5-4 6" stroke="#FFD700" strokeWidth="2" strokeLinecap="round"/>
     <path d="M5 3h14v8a7 7 0 01-14 0V3z" fill="rgba(255,215,0,0.18)" stroke="#FFD700" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
     <circle cx="12" cy="8" r="2" fill="#FFD700" opacity="0.7"/>
   </svg>
 );
-const IcoBook=()=>(
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+const IcoBook=({s=18}:{s?:number})=>(
+  <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
     <path d="M4 19.5A2.5 2.5 0 016.5 17H20" stroke="#FFD700" strokeWidth="1.8" strokeLinecap="round"/>
     <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" fill="rgba(255,215,0,0.12)" stroke="#FFD700" strokeWidth="1.8" strokeLinejoin="round"/>
     <path d="M8 7h8M8 11h6" stroke="#FFD700" strokeWidth="1.5" strokeLinecap="round" opacity="0.7"/>
   </svg>
 );
-const IcoClock=()=>(
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+const IcoClock=({s=18}:{s?:number})=>(
+  <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
     <circle cx="12" cy="12" r="9" fill="rgba(255,215,0,0.1)" stroke="#FFD700" strokeWidth="1.8"/>
     <path d="M12 7v5l3 3" stroke="#FFD700" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     <circle cx="12" cy="12" r="1.2" fill="#FFD700"/>
   </svg>
 );
-const IcoChart=()=>(
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+const IcoChart=({s=18}:{s?:number})=>(
+  <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
     <path d="M3 20h18" stroke="#FFD700" strokeWidth="1.8" strokeLinecap="round"/>
     <rect x="5" y="12" width="3" height="8" rx="1" fill="rgba(255,215,0,0.35)" stroke="#FFD700" strokeWidth="1.3"/>
     <rect x="10.5" y="7" width="3" height="13" rx="1" fill="rgba(255,215,0,0.35)" stroke="#FFD700" strokeWidth="1.3"/>
@@ -447,8 +447,8 @@ const IcoChart=()=>(
     <path d="M6.5 12l4-5 4 2.5 4-7" stroke="#FFD700" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.7"/>
   </svg>
 );
-const IcoHand=()=>(
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+const IcoHand=({s=18}:{s?:number})=>(
+  <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
     <path d="M9 11V5a1 1 0 012 0v6M9 11V4a1 1 0 012 0v7M11 11V5a1 1 0 012 0v6M13 11V6a1 1 0 012 0v5" stroke="#FFD700" strokeWidth="1.6" strokeLinecap="round"/>
     <path d="M7 11v1a1 1 0 01-1 0V9a1 1 0 012 0v2z" stroke="#FFD700" strokeWidth="1.5" strokeLinecap="round"/>
     <path d="M7 12v3c0 3 2 5 5 5s5-2 5-5v-4" stroke="#FFD700" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="rgba(255,215,0,0.1)"/>
@@ -1361,17 +1361,22 @@ export default function TaiXiuPage() {
               const r=angle*Math.PI/180;
               const cx=208+A*Math.cos(r), cy=100+B*Math.sin(r);
               const rot=Math.atan2(B*Math.cos(r),-A*Math.sin(r))*180/Math.PI;
-              const sz=big?32:24;
+              const sz=big?42:34;
               return(
                 <div key={id} style={{position:"absolute",left:cx-sz/2,top:cy-sz/2,transform:`rotate(${rot}deg)`}}>
                   <button title={id} onClick={onClick} style={{
                     width:sz,height:sz,borderRadius:"50%",
                     display:"flex",alignItems:"center",justifyContent:"center",
-                    padding:0,cursor:"pointer",
-                    background:active?"linear-gradient(145deg,#ffe066,#c8860a)":"linear-gradient(145deg,#2a1800,#150d00)",
-                    border:`${big?"2px":"1.5px"} solid ${active?"#FFD700":"rgba(255,215,0,0.3)"}`,
-                    boxShadow:active?"0 0 14px rgba(255,215,0,0.7),inset 0 1px 0 rgba(255,255,255,0.3)":"0 2px 6px rgba(0,0,0,0.9),inset 0 1px 0 rgba(255,255,255,0.05)",
-                    transition:"all 0.2s ease",
+                    padding:0,cursor:"pointer",touchAction:"manipulation",
+                    background:active
+                      ?"linear-gradient(145deg,#ffe066,#c8860a)"
+                      :"linear-gradient(145deg,#0a0400,#000000)",
+                    border:`${big?"2.5px":"2px"} solid ${active?"#FFD700":"rgba(255,215,0,0.5)"}`,
+                    boxShadow:active
+                      ?"0 0 18px rgba(255,215,0,0.8),inset 0 1px 0 rgba(255,255,255,0.35)"
+                      :"0 4px 12px rgba(0,0,0,1),0 0 0 1.5px rgba(0,0,0,0.9),inset 0 1px 0 rgba(255,255,255,0.07)",
+                    transition:"all 0.15s ease",
+                    WebkitTapHighlightColor:"transparent",
                   }}>
                     <span style={{transform:`rotate(${-rot}deg)`,display:"flex",alignItems:"center",justifyContent:"center"}}>
                       {icon}
@@ -1380,12 +1385,13 @@ export default function TaiXiuPage() {
                 </div>
               );
             };
+            const isz=18, bsz=22;
             const defs:BtnDef[]=[
-              {angle:-180,icon:<IcoTrophy/>,id:"leaderboard",active:popup==="leaderboard",onClick:()=>setPopup(popup==="leaderboard"?null:"leaderboard"),big:true},
-              {angle:-155,icon:<IcoBook/>,  id:"rules",      active:popup==="rules",      onClick:()=>setPopup(popup==="rules"?null:"rules")},
-              {angle:-205,icon:<IcoClock/>, id:"history",    active:popup==="history",    onClick:()=>setPopup(popup==="history"?null:"history")},
-              {angle: -20,icon:<IcoChart/>, id:"soicau",     active:popup==="soicau",     onClick:()=>setPopup(popup==="soicau"?null:"soicau")},
-              {angle:  20,icon:<IcoHand/>,  id:"hand",       active:handMode,             onClick:()=>setHandMode(p=>!p)},
+              {angle:-180,icon:<IcoTrophy s={bsz}/>,id:"leaderboard",active:popup==="leaderboard",onClick:()=>setPopup(popup==="leaderboard"?null:"leaderboard"),big:true},
+              {angle:-155,icon:<IcoBook   s={isz}/>,id:"rules",      active:popup==="rules",      onClick:()=>setPopup(popup==="rules"?null:"rules")},
+              {angle:-205,icon:<IcoClock  s={isz}/>,id:"history",    active:popup==="history",    onClick:()=>setPopup(popup==="history"?null:"history")},
+              {angle: -20,icon:<IcoChart  s={isz}/>,id:"soicau",     active:popup==="soicau",     onClick:()=>setPopup(popup==="soicau"?null:"soicau")},
+              {angle:  20,icon:<IcoHand   s={isz}/>,id:"hand",       active:handMode,             onClick:()=>setHandMode(p=>!p)},
             ];
             return <>{defs.map(d=>mkBtn(d))}</>;
           })()}
