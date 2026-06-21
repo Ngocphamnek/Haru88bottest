@@ -1347,8 +1347,8 @@ export default function TaiXiuPage() {
             <SideIconBtn icon={<IcoClock/>}  label="LỊCH SỬ"   active={popup==="history"}     onClick={()=>setPopup(popup==="history"?null:"history")}/>
           </div>
 
-          {/* Left arc – vertical: Soi Cầu + Tay */}
-          <div style={{position:"absolute",left:-13,top:"50%",transform:"translateY(-50%)",display:"flex",flexDirection:"column",gap:7}}>
+          {/* Right side: Soi Cầu + Tay */}
+          <div style={{position:"absolute",right:-40,top:"50%",transform:"translateY(-50%)",display:"flex",flexDirection:"column",gap:7}}>
             <SideIconBtn icon={<IcoChart/>} label="SOI CẦU"    active={popup==="soicau"} onClick={()=>setPopup(popup==="soicau"?null:"soicau")}/>
             <SideIconBtn icon={<IcoHand/>}  label="CHẾ ĐỘ TAY" active={handMode}         onClick={()=>setHandMode(p=>!p)}/>
           </div>
