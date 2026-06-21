@@ -1463,7 +1463,7 @@ export default function TaiXiuPage() {
 
             {/* Phase message */}
             <div style={{fontSize:10,color:"rgba(255,215,0,0.7)",marginBottom:4,minHeight:22,textAlign:"center",lineHeight:1.3}}>
-              {phase==="BETTING"&&<span style={{color:"rgba(255,215,0,0.7)"}}>✨ Xin mời đặt cược!</span>}
+              {phase==="BETTING"&&null}
               {phase==="THROWING"&&<span style={{color:"#FFA500",fontWeight:900}}>⚖️ Đang cân cửa...</span>}
               {phase==="RESULT"&&(
                 <div>
