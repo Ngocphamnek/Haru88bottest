@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Switch, Route, Router as WouterRouter, Link, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -8,6 +9,52 @@ import WalletPage from "@/pages/WalletPage";
 import ProfilePage from "@/pages/ProfilePage";
 
 const queryClient = new QueryClient();
+
+function ForceLandscape({ children }: { children: React.ReactNode }) {
+  const [state, setState] = useState({ isPortrait: false, isMobile: false, w: 0, h: 0 });
+
+  useEffect(() => {
+    const update = () => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const mobile = w < 1024 && ("ontouchstart" in window || navigator.maxTouchPoints > 0);
+      const portrait = h > w;
+      setState({ isPortrait: portrait && mobile, isMobile: mobile, w, h });
+    };
+    update();
+    window.addEventListener("resize", update);
+    window.addEventListener("orientationchange", update);
+    return () => {
+      window.removeEventListener("resize", update);
+      window.removeEventListener("orientationchange", update);
+    };
+  }, []);
+
+  if (!state.isMobile || !state.isPortrait) {
+    return <>{children}</>;
+  }
+
+  // Rotate 90deg: swap w/h so the content fills the screen as if landscape
+  const { w, h } = state;
+  return (
+    <div style={{ width: w, height: h, overflow: "hidden", position: "fixed", top: 0, left: 0 }}>
+      <div
+        style={{
+          width: h,
+          height: w,
+          transform: `rotate(90deg) translateX(${(h - w) / 2}px) translateY(${(w - h) / 2}px)`,
+          transformOrigin: "center center",
+          position: "absolute",
+          top: 0,
+          left: 0,
+          overflow: "hidden",
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
 
 
 function BottomNav() {
@@ -102,10 +149,12 @@ function Router() {
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-        <Router />
-        <Toaster />
-      </WouterRouter>
+      <ForceLandscape>
+        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+          <Router />
+          <Toaster />
+        </WouterRouter>
+      </ForceLandscape>
     </QueryClientProvider>
   );
 }
