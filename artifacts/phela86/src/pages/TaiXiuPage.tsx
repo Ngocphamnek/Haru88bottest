@@ -575,18 +575,18 @@ function SoiCauPopup({history,onClose}:{history:DiceRecord[];onClose:()=>void}) 
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10,padding:"10px 14px",borderRadius:10,background:"rgba(0,0,0,0.35)",border:"1px solid rgba(139,94,0,0.35)"}}>
           <div style={{textAlign:"center"}}>
             <div style={{
-              fontSize:20,fontWeight:900,color:"#111",background:"#e8e8e8",borderRadius:"50%",
+              fontSize:20,fontWeight:900,color:"#fff",background:"#0a1a66",borderRadius:"50%",
               width:40,height:40,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 3px",
-              border:"2px solid #bbb",boxShadow:"0 2px 6px rgba(0,0,0,0.4)"
+              border:"2px solid rgba(50,80,220,0.9)",boxShadow:"0 2px 8px rgba(50,80,220,0.4)"
             }}>{xiuCount}</div>
-            <div style={{fontSize:9,color:"rgba(255,255,255,0.45)",letterSpacing:1}}>XỈU</div>
+            <div style={{fontSize:9,color:"#88aaff",letterSpacing:1,fontWeight:700}}>XỈU</div>
           </div>
           <div style={{textAlign:"center",fontSize:10}}>
             {last?(
               <>
                 <div style={{fontWeight:900,color:"#FFCC66",fontSize:11,marginBottom:3}}>#{last.session}</div>
-                <div style={{color:last.result==="T"?"#ff8888":"#8899ff",fontWeight:700}}>
-                  {last.result==="T"?"🔴 TÀI":"⚪ XỈU"}&nbsp;({last.dice.join("-")})
+                <div style={{color:last.result==="T"?"#ff8888":"#88aaff",fontWeight:700}}>
+                  {last.result==="T"?"🔴 TÀI":"🔵 XỈU"}&nbsp;({last.dice.join("-")})
                 </div>
                 <div style={{fontSize:9,color:"rgba(255,255,255,0.35)",marginTop:2}}>Phiên gần nhất</div>
               </>
@@ -596,23 +596,23 @@ function SoiCauPopup({history,onClose}:{history:DiceRecord[];onClose:()=>void}) 
           </div>
           <div style={{textAlign:"center"}}>
             <div style={{
-              fontSize:20,fontWeight:900,color:"#fff",background:"#1a1a1a",borderRadius:"50%",
+              fontSize:20,fontWeight:900,color:"#fff",background:"#8a0010",borderRadius:"50%",
               width:40,height:40,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 3px",
-              border:"2px solid #555",boxShadow:"0 2px 6px rgba(0,0,0,0.4)"
+              border:"2px solid rgba(196,30,58,0.9)",boxShadow:"0 2px 8px rgba(196,30,58,0.4)"
             }}>{taiCount}</div>
-            <div style={{fontSize:9,color:"rgba(255,255,255,0.45)",letterSpacing:1}}>TÀI</div>
+            <div style={{fontSize:9,color:"#ff8888",letterSpacing:1,fontWeight:700}}>TÀI</div>
           </div>
         </div>
 
         {/* Legend */}
         <div style={{display:"flex",gap:14,marginBottom:6,fontSize:9}}>
           <div style={{display:"flex",alignItems:"center",gap:4}}>
-            <div style={{width:14,height:14,borderRadius:"50%",background:"#111",border:"1.5px solid #555"}}/>
-            <span style={{color:"rgba(255,255,255,0.45)"}}>Tài (11-18)</span>
+            <div style={{width:14,height:14,borderRadius:"50%",background:"radial-gradient(circle at 35% 30%,#ff8888,#C41E3A,#7a0010)",border:"1.5px solid rgba(196,30,58,0.7)"}}/>
+            <span style={{color:"rgba(255,255,255,0.55)"}}>TÀI</span>
           </div>
           <div style={{display:"flex",alignItems:"center",gap:4}}>
-            <div style={{width:14,height:14,borderRadius:"50%",background:"#f0f0f0",border:"1.5px solid #bbb"}}/>
-            <span style={{color:"rgba(255,255,255,0.45)"}}>Xỉu (3-10)</span>
+            <div style={{width:14,height:14,borderRadius:"50%",background:"radial-gradient(circle at 35% 30%,#88aaff,#3355cc,#0a1a66)",border:"1.5px solid rgba(50,80,220,0.7)"}}/>
+            <span style={{color:"rgba(255,255,255,0.55)"}}>XỈU</span>
           </div>
         </div>
 
@@ -639,9 +639,9 @@ function SoiCauPopup({history,onClose}:{history:DiceRecord[];onClose:()=>void}) 
                 return (
                   <g key={i}>
                     <circle cx={cx} cy={cy} r={CELL/2-1.5}
-                      fill={isTai?"#111":"#efefef"}
-                      stroke={isTai?"#444":"#ccc"} strokeWidth="1"/>
-                    <text x={cx} y={cy+3.5} textAnchor="middle" fontSize={9} fontWeight="bold" fill={isTai?"#fff":"#111"}>{total}</text>
+                      fill={isTai?"#8a0010":"#0a1a66"}
+                      stroke={isTai?"rgba(196,30,58,0.9)":"rgba(50,80,220,0.9)"} strokeWidth="1.5"/>
+                    <text x={cx} y={cy+3.5} textAnchor="middle" fontSize={9} fontWeight="bold" fill="#fff">{total}</text>
                   </g>
                 );
               })}
@@ -661,10 +661,10 @@ function SoiCauPopup({history,onClose}:{history:DiceRecord[];onClose:()=>void}) 
                 return (
                   <div key={i} style={{
                     width:22,height:22,borderRadius:"50%",flexShrink:0,
-                    background:isTai?"#1a1a1a":"#efefef",
-                    border:`1.5px solid ${isTai?"#555":"#bbb"}`,
+                    background:isTai?"#8a0010":"#0a1a66",
+                    border:`1.5px solid ${isTai?"rgba(196,30,58,0.9)":"rgba(50,80,220,0.9)"}`,
                     display:"flex",alignItems:"center",justifyContent:"center",
-                    fontSize:7,fontWeight:900,color:isTai?"#fff":"#111",
+                    fontSize:7,fontWeight:900,color:"#fff",
                   }}>{total}</div>
                 );
               })}
