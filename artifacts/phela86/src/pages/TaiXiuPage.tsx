@@ -1096,6 +1096,7 @@ export default function TaiXiuPage() {
   const [sessionBetLog,setSessionBetLog] = useState<SessionBetRecord[]>([]);
   const [selectedBeadSession,setSelectedBeadSession] = useState<SessionBetRecord|null>(null);
   const [lateBetToast,setLateBetToast] = useState(false);
+  const [showWelcome,setShowWelcome] = useState(true);
 
   const timerRef       = useRef<ReturnType<typeof setInterval>|null>(null);
   const phaseRef       = useRef<ReturnType<typeof setTimeout>|null>(null);
@@ -1180,6 +1181,9 @@ export default function TaiXiuPage() {
     setTaiTotal(Math.floor(Math.random()*150_000_000+20_000_000));
     setXiuTotal(Math.floor(Math.random()*150_000_000+20_000_000));
     setTaiCount(randInt(50,300)); setXiuCount(randInt(50,300));
+    // Show "Xin mời đặt cược" for 1 second then hide
+    setShowWelcome(true);
+    setTimeout(()=>setShowWelcome(false),1000);
   },[]);
 
   // Betting countdown
@@ -1463,7 +1467,12 @@ export default function TaiXiuPage() {
 
             {/* Phase message */}
             <div style={{fontSize:10,color:"rgba(255,215,0,0.7)",marginBottom:4,minHeight:22,textAlign:"center",lineHeight:1.3}}>
-              {phase==="BETTING"&&null}
+              {phase==="BETTING"&&showWelcome&&(
+                <span style={{color:"rgba(255,215,0,0.8)",animation:"fadeIn .3s ease"}}>✨ Xin mời đặt cược!</span>
+              )}
+              {phase==="BETTING"&&!showWelcome&&countdown===0&&(
+                <span style={{color:"#FFA500",fontWeight:900}}>💰 Trả tiền — Cân cửa</span>
+              )}
               {phase==="THROWING"&&<span style={{color:"#FFA500",fontWeight:900}}>⚖️ Đang cân cửa...</span>}
               {phase==="RESULT"&&(
                 <div>
