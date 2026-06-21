@@ -1248,9 +1248,9 @@ export default function TaiXiuPage() {
                 borderRadius:12,padding:"6px 4px 4px",transition:"all .2s",
                 boxShadow:taiWins?"0 0 28px rgba(255,60,60,0.8),0 0 56px rgba(196,30,58,0.55)":taiBet>0?"0 0 14px rgba(255,60,60,0.35)":"none",
               }}>
-                <span style={{fontSize:22,fontWeight:900,color:taiWins?"#fff":"#ff9999",fontFamily:"'Arial Black',sans-serif",
+                <span style={{fontSize:32,fontWeight:900,color:taiWins?"#fff":"#ff9999",fontFamily:"'Arial Black',sans-serif",
                   textShadow:taiWins?"0 0 20px #ff4444,0 0 40px #ff0000,0 2px 8px rgba(0,0,0,0.9)":"0 2px 8px rgba(196,30,58,0.9)",
-                  letterSpacing:1,transition:"all .2s"}}>TÀI</span>
+                  letterSpacing:2,transition:"all .2s",marginTop:-6,lineHeight:1}}>TÀI</span>
                 <span style={{fontSize:10,fontWeight:700,color:"#FFA500",letterSpacing:0.5}}>{fmtVN(taiTotal)}</span>
                 {phase==="BETTING"&&canBetTai&&(
                   <button
@@ -1303,9 +1303,9 @@ export default function TaiXiuPage() {
                 borderRadius:12,padding:"6px 4px 4px",transition:"all .2s",
                 boxShadow:xiuWins?"0 0 28px rgba(100,130,255,0.8),0 0 56px rgba(50,80,200,0.55)":xiuBet>0?"0 0 14px rgba(100,130,255,0.35)":"none",
               }}>
-                <span style={{fontSize:22,fontWeight:900,color:xiuWins?"#fff":"#99aaff",fontFamily:"'Arial Black',sans-serif",
+                <span style={{fontSize:32,fontWeight:900,color:xiuWins?"#fff":"#99aaff",fontFamily:"'Arial Black',sans-serif",
                   textShadow:xiuWins?"0 0 20px #6688ff,0 0 40px #4455ff,0 2px 8px rgba(0,0,0,0.9)":"0 2px 8px rgba(50,80,200,0.8)",
-                  letterSpacing:1,transition:"all .2s"}}>XỈU</span>
+                  letterSpacing:2,transition:"all .2s",marginTop:-6,lineHeight:1}}>XỈU</span>
                 <span style={{fontSize:10,fontWeight:700,color:"#FFA500",letterSpacing:0.5}}>{fmtVN(xiuTotal)}</span>
                 {phase==="BETTING"&&canBetXiu&&(
                   <button
