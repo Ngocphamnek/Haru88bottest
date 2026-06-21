@@ -1370,7 +1370,7 @@ export default function TaiXiuPage() {
     e.preventDefault();
   }
 
-  const PANEL_W=416; const PANEL_H=200;
+  const PANEL_W=416; const PANEL_H=240;
 
   /* ── Circle content per phase ── */
   const circleContent = useMemo(()=>{
@@ -1586,12 +1586,19 @@ export default function TaiXiuPage() {
               );
             })()}
 
-            {/* History beads — newest on left — click to view session detail */}
-            <div style={{display:"flex",flexDirection:"row-reverse",gap:4,marginTop:8,flexWrap:"nowrap",justifyContent:"flex-end"}}>
-              {history.slice(0,14).map((h,i)=>{
-                const rec=sessionBetLog[i];
-                return <Bead key={i} val={h} onClick={rec?()=>setSelectedBeadSession(rec):undefined}/>;
-              })}
+            {/* Divider + History beads inside oval */}
+            <div style={{width:"100%",display:"flex",flexDirection:"column",alignItems:"center",marginTop:6}}>
+              <div style={{
+                width:"85%",height:1,
+                background:"linear-gradient(90deg,transparent,rgba(216,162,74,0.55),transparent)",
+                marginBottom:6,
+              }}/>
+              <div style={{display:"flex",flexDirection:"row-reverse",gap:5,justifyContent:"center"}}>
+                {history.slice(0,13).map((h,i)=>{
+                  const rec=sessionBetLog[i];
+                  return <Bead key={i} val={h} onClick={rec?()=>setSelectedBeadSession(rec):undefined}/>;
+                })}
+              </div>
             </div>
             {/* Streaks */}
             <div style={{display:"flex",justifyContent:"center",width:"100%",marginTop:5,paddingInline:12}}>
