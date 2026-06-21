@@ -828,6 +828,7 @@ export default function TaiXiuPage() {
   const hasTouchedBowl = useRef(false);
   const revealedRef    = useRef(false);
 
+  const [focused, setFocused] = useState(false);
   const panelDragging  = useRef(false);
   const panelDragOffset = useRef({x:0,y:0});
   const [panelPos,setPanelPos] = useState<{x:number;y:number}|null>(null);
@@ -856,11 +857,12 @@ export default function TaiXiuPage() {
   const isMobilePortrait  = winW <= 600;
   const isMobile = isMobileLandscape || isMobilePortrait;
   // szF: scale factor for the panel (CSS transform, 1 = desktop unchanged)
-  const szF = isMobileLandscape
+  const szFBase = isMobileLandscape
     ? Math.min((winW * 0.72) / 416, (winH - 20) / 310, 1.6)
     : isMobilePortrait
       ? Math.min((winW - 60) / 416, 1)
       : 1;
+  const szF = szFBase * (focused ? 1 : 0.72);
 
   function getPanelCenter(){
     if(isMobile) return {x:winW/2, y:winH/2};
@@ -1111,7 +1113,7 @@ export default function TaiXiuPage() {
   },[phase, countdown, justRevealed, dice, isTai, sum, handMode]);
 
   return (
-    <div className="fixed inset-0 overflow-hidden select-none" style={{background:"#000"}}>
+    <div className="fixed inset-0 overflow-hidden select-none" style={{background:"#000"}} onClick={()=>setFocused(false)}>
 
 
       {/* ── DRAGGABLE LID (hand mode) — fixed on screen, independent of panel ── */}
@@ -1143,10 +1145,12 @@ export default function TaiXiuPage() {
         ref={panelRef}
         onMouseDown={onPanelDragStart}
         onTouchStart={onPanelDragStart}
+        onClick={(e)=>{e.stopPropagation();setFocused(true);}}
         style={{
           position:"absolute",left:pPos.x,top:pPos.y,
           transform:`translate(-50%,-50%) scale(${szF})`,
           transformOrigin:"center center",
+          transition:"transform 0.3s cubic-bezier(.17,.67,.3,1.2)",
           zIndex:10,display:"flex",flexDirection:"column",alignItems:"center",
           cursor:"grab",touchAction:"none",willChange:"left,top",userSelect:"none",
         }}
