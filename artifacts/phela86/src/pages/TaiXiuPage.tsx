@@ -1251,7 +1251,6 @@ export default function TaiXiuPage() {
                 <span style={{fontSize:22,fontWeight:900,color:taiWins?"#fff":"#ff9999",fontFamily:"'Arial Black',sans-serif",
                   textShadow:taiWins?"0 0 20px #ff4444,0 0 40px #ff0000,0 2px 8px rgba(0,0,0,0.9)":"0 2px 8px rgba(196,30,58,0.9)",
                   letterSpacing:1,transition:"all .2s"}}>TÀI</span>
-                <span style={{fontSize:10,fontWeight:700,color:"rgba(255,165,0,0.7)",letterSpacing:0.5,marginTop:1}}>x{PAYOUT.toFixed(2)}</span>
                 <span style={{fontSize:10,fontWeight:700,color:"#FFA500",letterSpacing:0.5}}>{fmtVN(taiTotal)}</span>
                 {phase==="BETTING"&&canBetTai&&(
                   <button
@@ -1307,7 +1306,6 @@ export default function TaiXiuPage() {
                 <span style={{fontSize:22,fontWeight:900,color:xiuWins?"#fff":"#99aaff",fontFamily:"'Arial Black',sans-serif",
                   textShadow:xiuWins?"0 0 20px #6688ff,0 0 40px #4455ff,0 2px 8px rgba(0,0,0,0.9)":"0 2px 8px rgba(50,80,200,0.8)",
                   letterSpacing:1,transition:"all .2s"}}>XỈU</span>
-                <span style={{fontSize:10,fontWeight:700,color:"rgba(255,165,0,0.7)",letterSpacing:0.5,marginTop:1}}>x{PAYOUT.toFixed(2)}</span>
                 <span style={{fontSize:10,fontWeight:700,color:"#FFA500",letterSpacing:0.5}}>{fmtVN(xiuTotal)}</span>
                 {phase==="BETTING"&&canBetXiu&&(
                   <button
