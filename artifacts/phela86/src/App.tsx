@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Switch, Route, Router as WouterRouter, Link, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -8,6 +9,46 @@ import WalletPage from "@/pages/WalletPage";
 import ProfilePage from "@/pages/ProfilePage";
 
 const queryClient = new QueryClient();
+
+function useIsMobilePortrait() {
+  const check = () =>
+    window.innerWidth < 1024 && window.innerHeight > window.innerWidth;
+  const [portrait, setPortrait] = useState(check);
+  useEffect(() => {
+    const handler = () => setPortrait(check());
+    window.addEventListener("resize", handler);
+    window.addEventListener("orientationchange", handler);
+    return () => {
+      window.removeEventListener("resize", handler);
+      window.removeEventListener("orientationchange", handler);
+    };
+  }, []);
+  return portrait;
+}
+
+function RotatePrompt() {
+  return (
+    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#0D0D0D]">
+      <div className="flex flex-col items-center gap-6 px-8 text-center">
+        <div style={{ animation: "rotateHint 2s ease-in-out infinite" }}>
+          <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="#FFD700" strokeWidth="1.5">
+            <rect x="5" y="2" width="14" height="20" rx="2" />
+            <circle cx="12" cy="17" r="1" fill="#FFD700" />
+          </svg>
+        </div>
+        <p className="text-white text-lg font-bold">Xoay ngang điện thoại</p>
+        <p className="text-white/50 text-sm">để có trải nghiệm chơi tốt nhất</p>
+      </div>
+      <style>{`
+        @keyframes rotateHint {
+          0%,100% { transform: rotate(0deg); }
+          30%      { transform: rotate(90deg); }
+          70%      { transform: rotate(90deg); }
+        }
+      `}</style>
+    </div>
+  );
+}
 
 function BottomNav() {
   const [loc] = useLocation();
@@ -99,8 +140,10 @@ function Router() {
 }
 
 export default function App() {
+  const isMobilePortrait = useIsMobilePortrait();
   return (
     <QueryClientProvider client={queryClient}>
+      {isMobilePortrait && <RotatePrompt />}
       <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
         <Router />
         <Toaster />
