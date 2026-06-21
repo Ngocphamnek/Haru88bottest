@@ -1515,9 +1515,37 @@ export default function TaiXiuPage() {
               </div>
             </div>
 
-            <div style={{borderTop:"1px solid rgba(139,94,0,0.3)",paddingTop:10,marginBottom:8}}>
-              <p style={{color:"#FFD700",fontWeight:900,fontSize:12,marginBottom:6,letterSpacing:1}}>🏆 HŨ THƯỞNG</p>
-              <p style={{color:"rgba(255,255,255,0.55)",fontSize:10}}>Hũ được tích lũy từ mỗi lượt cược (trích <span style={{color:"#FFD700"}}>0.5%</span>). Khi hũ vượt <span style={{color:"#FFD700"}}>500 triệu</span>, sẽ nổ ngẫu nhiên và thưởng toàn bộ cho người thắng ván đó.</p>
+            <div style={{borderTop:"1px solid rgba(139,94,0,0.3)",paddingTop:10,marginBottom:12}}>
+              <p style={{color:"#FFD700",fontWeight:900,fontSize:12,marginBottom:8,letterSpacing:1}}>🏆 HŨ THƯỞNG</p>
+              <p style={{color:"rgba(255,255,255,0.55)",fontSize:10,marginBottom:8}}>Hũ được tích lũy từ mỗi lượt cược (trích <span style={{color:"#FFD700"}}>0.5%</span>). Hũ nổ khi đủ <span style={{color:"#FFD700",fontWeight:700}}>một trong hai</span> điều kiện:</p>
+              {/* Điều kiện 1: xúc xắc */}
+              <div style={{marginBottom:8,padding:"8px 10px",borderRadius:8,background:"rgba(255,215,0,0.08)",border:"1px solid rgba(255,215,0,0.25)"}}>
+                <div style={{color:"#FFD700",fontWeight:900,fontSize:10,marginBottom:4}}>🎲 Xúc xắc ba mặt giống nhau</div>
+                <div style={{display:"flex",gap:8}}>
+                  <div style={{flex:1,textAlign:"center",padding:"5px 0",borderRadius:6,background:"rgba(255,100,100,0.15)",border:"1px solid rgba(255,100,100,0.3)"}}>
+                    <div style={{fontSize:14,letterSpacing:2}}>⚀⚀⚀</div>
+                    <div style={{fontSize:9,color:"#ff9999",fontWeight:700,marginTop:2}}>1-1-1 → NỔ HŨ</div>
+                  </div>
+                  <div style={{flex:1,textAlign:"center",padding:"5px 0",borderRadius:6,background:"rgba(100,180,255,0.15)",border:"1px solid rgba(100,180,255,0.3)"}}>
+                    <div style={{fontSize:14,letterSpacing:2}}>⚅⚅⚅</div>
+                    <div style={{fontSize:9,color:"#99ccff",fontWeight:700,marginTop:2}}>6-6-6 → NỔ HŨ</div>
+                  </div>
+                </div>
+              </div>
+              {/* Điều kiện 2: số người */}
+              <div style={{padding:"8px 10px",borderRadius:8,background:"rgba(255,215,0,0.08)",border:"1px solid rgba(255,215,0,0.25)"}}>
+                <div style={{color:"#FFD700",fontWeight:900,fontSize:10,marginBottom:6}}>👥 Số người đặt cược là số chẵn</div>
+                <div style={{display:"flex",gap:6}}>
+                  <div style={{flex:1,textAlign:"center",padding:"5px 4px",borderRadius:6,background:"rgba(255,100,100,0.12)",border:"1px solid rgba(255,100,100,0.3)"}}>
+                    <div style={{fontSize:13,fontWeight:900,color:"#ff9999"}}>123</div>
+                    <div style={{fontSize:8,color:"rgba(255,255,255,0.4)",marginTop:1}}>Số lẻ → Không nổ</div>
+                  </div>
+                  <div style={{flex:1,textAlign:"center",padding:"5px 4px",borderRadius:6,background:"rgba(80,220,120,0.12)",border:"1px solid rgba(80,220,120,0.3)"}}>
+                    <div style={{fontSize:13,fontWeight:900,color:"#88ee99"}}>122</div>
+                    <div style={{fontSize:8,color:"rgba(255,255,255,0.4)",marginTop:1}}>Số chẵn → NỔ HŨ</div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div style={{borderTop:"1px solid rgba(139,94,0,0.3)",paddingTop:8}}>
