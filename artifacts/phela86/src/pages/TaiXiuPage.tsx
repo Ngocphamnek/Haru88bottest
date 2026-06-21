@@ -1454,10 +1454,6 @@ export default function TaiXiuPage() {
           </div>
         )}
 
-        {/* Balance */}
-        <div style={{marginTop:10,fontSize:11,color:"rgba(255,215,0,0.5)"}}>
-          Số dư: <span style={{color:"#FFD700",fontWeight:700}}>{fmtVN(balance)}</span> xu
-        </div>
       </div>
 
       {/* ── POPUPS ── */}
