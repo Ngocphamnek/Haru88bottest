@@ -1287,7 +1287,6 @@ export default function TaiXiuPage() {
                     <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="7" r="4" fill="#ff6666"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7" stroke="#ff6666" strokeWidth="2.5" strokeLinecap="round"/></svg>
                     {taiCount}
                   </span>
-                  <span style={{fontSize:9,color:"rgba(255,215,0,0.5)"}}>người chơi</span>
                   <span style={{fontSize:9,color:"rgba(130,160,255,0.85)",fontWeight:700,display:"flex",alignItems:"center",gap:2}}>
                     {xiuCount}
                     <svg width="9" height="9" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="7" r="4" fill="#8899ff"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7" stroke="#8899ff" strokeWidth="2.5" strokeLinecap="round"/></svg>
