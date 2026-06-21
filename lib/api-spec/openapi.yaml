@@ -1,22 +1,30 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: PheLa86 Game Platform API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: players
+    description: Player management
+  - name: rooms
+    description: Game rooms
+  - name: leaderboard
+    description: Rankings and leaderboard
+  - name: transactions
+    description: Wallet and transactions
+  - name: games
+    description: Game types
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +32,218 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /players/me:
+    get:
+      operationId: getMe
+      tags: [players]
+      summary: Get current player profile
+      responses:
+        "200":
+          description: Player profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Player"
+    patch:
+      operationId: updateMe
+      tags: [players]
+      summary: Update player profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlayerUpdate"
+      responses:
+        "200":
+          description: Updated player
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Player"
+
+  /players:
+    get:
+      operationId: listPlayers
+      tags: [players]
+      summary: List all players
+      responses:
+        "200":
+          description: List of players
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Player"
+
+  /rooms:
+    get:
+      operationId: listRooms
+      tags: [rooms]
+      summary: List all game rooms
+      parameters:
+        - name: gameType
+          in: query
+          schema:
+            type: string
+            enum: [phela, taixiu, baucua, poker, tienlen, all]
+      responses:
+        "200":
+          description: List of rooms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Room"
+    post:
+      operationId: createRoom
+      tags: [rooms]
+      summary: Create a new room
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoomInput"
+      responses:
+        "201":
+          description: Created room
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Room"
+
+  /rooms/{id}:
+    get:
+      operationId: getRoom
+      tags: [rooms]
+      summary: Get room by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Room details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Room"
+
+  /rooms/featured:
+    get:
+      operationId: getFeaturedRooms
+      tags: [rooms]
+      summary: Get featured/hot rooms
+      responses:
+        "200":
+          description: Featured rooms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Room"
+
+  /leaderboard:
+    get:
+      operationId: getLeaderboard
+      tags: [leaderboard]
+      summary: Get global leaderboard
+      parameters:
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [daily, weekly, monthly, alltime]
+      responses:
+        "200":
+          description: Leaderboard entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LeaderboardEntry"
+
+  /leaderboard/summary:
+    get:
+      operationId: getLeaderboardSummary
+      tags: [leaderboard]
+      summary: Get leaderboard summary stats
+      responses:
+        "200":
+          description: Summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaderboardSummary"
+
+  /transactions:
+    get:
+      operationId: listTransactions
+      tags: [transactions]
+      summary: List player transactions
+      responses:
+        "200":
+          description: Transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Transaction"
+    post:
+      operationId: createTransaction
+      tags: [transactions]
+      summary: Create a deposit or withdrawal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransactionInput"
+      responses:
+        "201":
+          description: Created transaction
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transaction"
+
+  /games:
+    get:
+      operationId: listGames
+      tags: [games]
+      summary: List available game types
+      responses:
+        "200":
+          description: Game types
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GameType"
+
+  /lobby/stats:
+    get:
+      operationId: getLobbyStats
+      tags: [rooms]
+      summary: Get lobby statistics
+      responses:
+        "200":
+          description: Lobby stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LobbyStats"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +254,183 @@ components:
       required:
         - status
 
+    Player:
+      type: object
+      required: [id, username, balance, goldCoins, level, vipLevel, avatar, wins, losses, winRate, joinedAt]
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        balance:
+          type: number
+        goldCoins:
+          type: number
+        level:
+          type: integer
+        vipLevel:
+          type: integer
+        avatar:
+          type: ["string", "null"]
+        wins:
+          type: integer
+        losses:
+          type: integer
+        winRate:
+          type: number
+        joinedAt:
+          type: string
+
+    PlayerUpdate:
+      type: object
+      properties:
+        username:
+          type: string
+        avatar:
+          type: string
+
+    Room:
+      type: object
+      required: [id, name, gameType, minBet, maxBet, playerCount, maxPlayers, status, isHot, isVip, hasPassword, jackpot]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        gameType:
+          type: string
+          enum: [phela, taixiu, baucua, poker, tienlen]
+        minBet:
+          type: number
+        maxBet:
+          type: number
+        playerCount:
+          type: integer
+        maxPlayers:
+          type: integer
+        status:
+          type: string
+          enum: [waiting, playing, full]
+        isHot:
+          type: boolean
+        isVip:
+          type: boolean
+        hasPassword:
+          type: boolean
+        jackpot:
+          type: ["number", "null"]
+
+    RoomInput:
+      type: object
+      required: [name, gameType, minBet, maxBet]
+      properties:
+        name:
+          type: string
+        gameType:
+          type: string
+          enum: [phela, taixiu, baucua, poker, tienlen]
+        minBet:
+          type: number
+        maxBet:
+          type: number
+        password:
+          type: ["string", "null"]
+        maxPlayers:
+          type: integer
+
+    LeaderboardEntry:
+      type: object
+      required: [rank, playerId, username, avatar, totalWinnings, gamesPlayed, winRate, level]
+      properties:
+        rank:
+          type: integer
+        playerId:
+          type: integer
+        username:
+          type: string
+        avatar:
+          type: ["string", "null"]
+        totalWinnings:
+          type: number
+        gamesPlayed:
+          type: integer
+        winRate:
+          type: number
+        level:
+          type: integer
+
+    LeaderboardSummary:
+      type: object
+      required: [totalPlayers, totalGamesPlayed, biggestWin, topPlayer]
+      properties:
+        totalPlayers:
+          type: integer
+        totalGamesPlayed:
+          type: integer
+        biggestWin:
+          type: number
+        topPlayer:
+          type: string
+
+    Transaction:
+      type: object
+      required: [id, type, amount, status, createdAt, description]
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+          enum: [deposit, withdrawal, win, loss, bonus]
+        amount:
+          type: number
+        status:
+          type: string
+          enum: [pending, completed, failed]
+        createdAt:
+          type: string
+        description:
+          type: string
+
+    TransactionInput:
+      type: object
+      required: [type, amount]
+      properties:
+        type:
+          type: string
+          enum: [deposit, withdrawal]
+        amount:
+          type: number
+
+    GameType:
+      type: object
+      required: [id, name, displayName, description, minBet, maxBet, activeRooms, icon]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        displayName:
+          type: string
+        description:
+          type: string
+        minBet:
+          type: number
+        maxBet:
+          type: number
+        activeRooms:
+          type: integer
+        icon:
+          type: string
+
+    LobbyStats:
+      type: object
+      required: [onlinePlayers, activeRooms, jackpotTotal, totalGamesToday]
+      properties:
+        onlinePlayers:
+          type: integer
+        activeRooms:
+          type: integer
+        jackpotTotal:
+          type: number
+        totalGamesToday:
+          type: integer
